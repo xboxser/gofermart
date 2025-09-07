@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	balance "gophermart/internal/balance/handler"
+	"gophermart/internal/config"
+	"gophermart/internal/config/db"
 	order "gophermart/internal/order/handler"
 	user "gophermart/internal/user/handler"
 	withdraw "gophermart/internal/withdraw/handler"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -16,11 +20,16 @@ import (
 // TODO Сжатие данных при отправке
 
 func main() {
+	config := config.NewConfigServer()
+	fmt.Println(config.RunAddress, config.DatabaseURI, config.AccrualSystemAddress)
 
-	fmt.Print("Hello World!")
+	ctx := context.Background()
+	if err := db.InitDB(ctx, config.DatabaseURI); err != nil {
+		log.Fatal("Failed to initialize database:", err)
+	}
+	defer db.GetDB().Close()
 
 	r := chi.NewRouter()
-
 	r.Route("/api/user", func(r chi.Router) {
 		r.Post("/register", user.Register)
 		r.Post("/login", user.Login)
@@ -37,7 +46,7 @@ func main() {
 		r.Get("/withdrawals", withdraw.Withdrawals)
 	})
 	server := &http.Server{
-		Addr:    "localhost:8080",
+		Addr:    config.RunAddress,
 		Handler: r,
 	}
 
