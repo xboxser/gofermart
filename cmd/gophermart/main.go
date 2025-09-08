@@ -1,15 +1,13 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	balance "gophermart/internal/balance/handler"
 	"gophermart/internal/config"
-	"gophermart/internal/config/db"
 	order "gophermart/internal/order/handler"
 	user "gophermart/internal/user/handler"
+	"gophermart/internal/validator"
 	withdraw "gophermart/internal/withdraw/handler"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -23,12 +21,13 @@ func main() {
 	config := config.NewConfigServer()
 	fmt.Println(config.RunAddress, config.DatabaseURI, config.AccrualSystemAddress)
 
-	ctx := context.Background()
-	if err := db.InitDB(ctx, config.DatabaseURI); err != nil {
-		log.Fatal("Failed to initialize database:", err)
-	}
-	defer db.GetDB().Close()
+	// ctx := context.Background()
+	// if err := db.InitDB(ctx, config.DatabaseURI); err != nil {
+	// 	log.Fatal("Failed to initialize database:", err)
+	// }
+	// defer db.GetDB().Close()
 
+	validator.Init()
 	r := chi.NewRouter()
 	r.Route("/api/user", func(r chi.Router) {
 		r.Post("/register", user.Register)

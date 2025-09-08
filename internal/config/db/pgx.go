@@ -9,7 +9,7 @@ import (
 )
 
 var globalDB *dbPgx
-var once sync.Once
+var onceDB sync.Once
 
 type dbPgx struct {
 	conn *pgx.Conn
@@ -30,7 +30,7 @@ func NewDBPgx(ctx context.Context, connStr string) (*dbPgx, error) {
 func InitDB(ctx context.Context, connStr string) error {
 	var initErr error
 
-	once.Do(func() {
+	onceDB.Do(func() {
 		globalDB, initErr = NewDBPgx(ctx, connStr)
 	})
 
