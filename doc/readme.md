@@ -49,41 +49,41 @@ sequenceDiagram
 ```mermaid
 ---
 config:
-theme: forest
+  theme: forest
 ---
 erDiagram
-direction TB
-users {
-int id PK ""  
-string login  ""  
-string password  "hash"  
-datetime created_at  ""  
-datetime uploaded_at  ""  
-}
-statuses {
-int id PK ""  
-string name  ""  
-}
-withdrawals {
-int id PK ""  
-int order_id  ""  
-datetime processed_at  ""  
-}
-orders {
-int id PK ""  
-int user_id FK ""  
-int status_id FK ""  
-int number  ""  
-float accrual  ""  
-datetime created_at  ""  
-datetime uploaded_at  ""  
-}
-balance {
-int id PK ""  
-int user_id FK ""  
-float current  ""  
-float withdrawn  ""  
-}
+	direction TB
+	users {
+		int id PK ""  
+		string login  ""  
+		string password  "hash"  
+		datetime created_at  ""  
+		datetime uploaded_at  ""  
+	}
+	statuses {
+		int id PK ""  
+		string name  ""  
+	}
+	withdrawals {
+		int id PK ""  
+		int order_id  ""  
+		datetime processed_at  ""  
+	}
+	balance {
+		int id PK ""  
+		int user_id FK ""  
+		numeric current  "numeric(15,2)"  
+		numeric withdrawn  "numeric(15,2)"  
+	}
+	orders {
+		int id PK ""  
+		int user_id FK ""  
+		int status_id FK ""  
+		int number  ""  
+		numeric accrual  "numeric(15,2)"  
+		datetime created_at  ""  
+		datetime uploaded_at  ""  
+	}
 
 	users||--|{orders:"  "
 	statuses||--|{orders:"  "
