@@ -44,3 +44,49 @@ sequenceDiagram
 ## Методы API
 - [Загрузка номера заказа, POST /api/user/orders](./api/api_user_orders.md)
 
+## Схема БД
+
+```mermaid
+---
+config:
+theme: forest
+---
+erDiagram
+direction TB
+users {
+int id PK ""  
+string login  ""  
+string password  "hash"  
+datetime created_at  ""  
+datetime uploaded_at  ""  
+}
+statuses {
+int id PK ""  
+string name  ""  
+}
+withdrawals {
+int id PK ""  
+int order_id  ""  
+datetime processed_at  ""  
+}
+orders {
+int id PK ""  
+int user_id FK ""  
+int status_id FK ""  
+int number  ""  
+float accrual  ""  
+datetime created_at  ""  
+datetime uploaded_at  ""  
+}
+balance {
+int id PK ""  
+int user_id FK ""  
+float current  ""  
+float withdrawn  ""  
+}
+
+	users||--|{orders:"  "
+	statuses||--|{orders:"  "
+	balance||--||users:"  "
+	withdrawals||--||orders:"  "
+```
