@@ -1,7 +1,40 @@
 package handler
 
-import "net/http"
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"gophermart/internal/user/model"
+	"gophermart/internal/user/validator"
+	"log"
+	"net/http"
+)
 
+// TODO 200 — пользователь успешно аутентифицирован;
+// 400 — неверный формат запроса;
+// TODO 401 — неверная пара логин/пароль;
+// TODO 500 — внутренняя ошибка сервера.
 func Login(res http.ResponseWriter, req *http.Request) {
-	res.Write([]byte("login"))
+	var buf bytes.Buffer
+	_, err := buf.ReadFrom(req.Body)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		log.Println("error read  body", err)
+		return
+	}
+
+	var user model.ApiUser
+
+	if err = json.Unmarshal(buf.Bytes(), &user); err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		log.Println("error read json", err)
+		return
+	}
+
+	if err := validator.ValidateModelUserApi(user); err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		log.Println("Validation failed:", err)
+	}
+
+	fmt.Println("user", user)
 }
