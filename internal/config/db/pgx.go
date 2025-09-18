@@ -12,6 +12,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 var globalDB *dbPgx
@@ -50,6 +51,7 @@ func InitDB(ctx context.Context, connStr string) error {
 
 }
 
+// TODO скорее всего использоваться не будет и нужно удалить
 func GetConn() *pgx.Conn {
 	return globalDB.conn
 }
@@ -84,4 +86,12 @@ func runMigrations(dsn string) error {
 		}
 	}
 	return nil
+}
+
+func (db *dbPgx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+	return db.conn.Query(ctx, sql, args...)
+}
+
+func (db *dbPgx) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+	return db.conn.Exec(ctx, sql, args...)
 }

@@ -3,17 +3,17 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"gophermart/internal/user/model"
+	"gophermart/internal/user/service"
 	"gophermart/internal/user/validator"
 	"log"
 	"net/http"
 )
 
-// TODO 200 — пользователь успешно зарегистрирован и аутентифицирован;
+// 200 — пользователь успешно зарегистрирован и аутентифицирован;
 // 400 — неверный формат запроса;
-// TODO 409 — логин уже занят;
-// TODO 500 — внутренняя ошибка сервера.
+// 409 — логин уже занят;
+// 500 — внутренняя ошибка сервера.
 func Register(res http.ResponseWriter, req *http.Request) {
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(req.Body)
@@ -36,5 +36,24 @@ func Register(res http.ResponseWriter, req *http.Request) {
 		log.Println("Validation failed:", err)
 	}
 
-	fmt.Println("user", user)
+	userID, err := service.Register(user)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		log.Println("error register", err)
+		return
+	}
+
+	if userID == -1 {
+		http.Error(res, "This login is busy", http.StatusConflict)
+		return
+	}
+
+	token, err := service.BuildJWTString(userID)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		log.Println("error token", err)
+		return
+	}
+	res.Header().Set("Authorization", token)
+	res.WriteHeader(http.StatusOK)
 }
