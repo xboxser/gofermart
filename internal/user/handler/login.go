@@ -3,17 +3,17 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"gophermart/internal/user/model"
+	"gophermart/internal/user/service"
 	"gophermart/internal/user/validator"
 	"log"
 	"net/http"
 )
 
-// TODO 200 — пользователь успешно аутентифицирован;
+// 200 — пользователь успешно аутентифицирован;
 // 400 — неверный формат запроса;
-// TODO 401 — неверная пара логин/пароль;
-// TODO 500 — внутренняя ошибка сервера.
+// 401 — неверная пара логин/пароль;
+// 500 — внутренняя ошибка сервера.
 func Login(res http.ResponseWriter, req *http.Request) {
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(req.Body)
@@ -36,5 +36,24 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		log.Println("Validation failed:", err)
 	}
 
-	fmt.Println("user", user)
+	userID, err := service.Login(user)
+	if err != nil {
+		if userID > 0 {
+			http.Error(res, "user not found", http.StatusUnauthorized)
+			return
+		}
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		log.Println("error login", err)
+		return
+	}
+
+	token, err := service.BuildJWTString(userID)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		log.Println("error token", err)
+		return
+	}
+	res.Header().Set("Authorization", token)
+	res.WriteHeader(http.StatusOK)
+
 }
