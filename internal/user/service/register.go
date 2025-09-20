@@ -27,6 +27,7 @@ func Register(apiUser model.ApiUser) (int, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
+
 	userID := -1
 	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
 	rows, err := db.Query(ctx, query, apiUser.Login, string(hashedPassword))

@@ -1,0 +1,38 @@
+package validator
+
+import (
+	"gophermart/internal/user/model"
+	"gophermart/internal/validator"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestValidateModelUserApi(t *testing.T) {
+	if validator.Validate == nil {
+		validator.Init()
+	}
+
+	tests := []struct {
+		name     string
+		user     model.ApiUser
+		valError bool
+	}{
+		{name: "valid parameters", user: model.ApiUser{Login: "qwerty", Password: "pass"}, valError: false},
+		{name: "empty parameters", user: model.ApiUser{Login: "", Password: ""}, valError: true},
+		{name: "nil password", user: model.ApiUser{Login: "qwerty"}, valError: true},
+		{name: "nil login", user: model.ApiUser{Login: "qwerty"}, valError: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateModelUserApi(tt.user)
+			if !tt.valError {
+				require.NoError(t, err)
+				return
+			}
+			assert.Error(t, err)
+		})
+	}
+}
