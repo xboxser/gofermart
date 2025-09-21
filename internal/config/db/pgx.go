@@ -81,6 +81,15 @@ func runMigrations(dsn string) error {
 		return fmt.Errorf("failed to get a new migrate instance: %w", err)
 	}
 	if err := m.Up(); err != nil {
+
+		// TODO для переключения версии миграции
+		// if _, dirty := err.(migrate.ErrDirty); dirty {
+		// 	// Принудительно устанавливаем версию
+		// 	m.Force(3) // или нужный номер версии
+		// } else {
+		// 	log.Fatal(err)
+		// }
+
 		if !errors.Is(err, migrate.ErrNoChange) {
 			return fmt.Errorf("failed to apply migrations to the DB: %w", err)
 		}
