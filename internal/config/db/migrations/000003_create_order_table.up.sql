@@ -3,7 +3,7 @@ BEGIN;
 
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
-  number INTEGER NOT NULL,
+  number BIGINT NOT NULL,
   accrual NUMERIC(15,2) NOT NULL,
   status_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,

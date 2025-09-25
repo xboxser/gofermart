@@ -1,19 +1,18 @@
 package middleware
 
 import (
+	"context"
 	"gophermart/internal/user/service"
 	"log"
 	"net/http"
 )
 
+const UserIDContextKey = "userID"
+
 // Проверка наличия токена в запросе
 func CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Получаем значение заголовка
 		headerValue := r.Header.Get("Authorization")
-
-		// Здесь можно выполнить нужные действия с полученным значением заголовка
-		// Например, логирование или проверку
 		log.Printf("Заголовок %s: %s", "Authorization", headerValue)
 
 		if headerValue == "" {
@@ -27,7 +26,10 @@ func CheckToken(next http.Handler) http.Handler {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
-
-		next.ServeHTTP(w, r)
+		// Добавляем userID в контекст запроса
+		// На основе данного поля определяем пользователя в дальнейшем
+		ctx := context.WithValue(r.Context(), UserIDContextKey, userID)
+		// Передаем запрос с обновленным контекстом дальше
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

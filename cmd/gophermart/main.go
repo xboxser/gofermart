@@ -13,6 +13,7 @@ import (
 // TODO добавить логирование
 // TODO прикрутить свагер
 // TODO Сжатие данных при отправке
+// TODO Добавить сессии
 
 func main() {
 	config := config.NewConfigServer()

@@ -15,23 +15,23 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-var globalDB *dbPgx
+var globalDB *DbPgx
 var onceDB sync.Once
 
-type dbPgx struct {
+type DbPgx struct {
 	conn *pgx.Conn
 	// TODO перенести PostgresErrorClassifier из проекта метрик
 }
 
 // gofermart_user qwerty!@3
 
-func NewDBPgx(ctx context.Context, connStr string) (*dbPgx, error) {
+func NewDBPgx(ctx context.Context, connStr string) (*DbPgx, error) {
 	conn, err := pgx.Connect(ctx, connStr)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dbPgx{
+	return &DbPgx{
 		conn: conn,
 	}, nil
 }
@@ -56,11 +56,11 @@ func GetConn() *pgx.Conn {
 	return globalDB.conn
 }
 
-func GetDB() *dbPgx {
+func GetDB() *DbPgx {
 	return globalDB
 }
 
-func (db *dbPgx) Close() error {
+func (db *DbPgx) Close() error {
 	if db.conn != nil {
 		return db.conn.Close(context.Background())
 	}
@@ -80,6 +80,12 @@ func runMigrations(dsn string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get a new migrate instance: %w", err)
 	}
+
+	// if err := m.Down(); err != nil {
+	// 	if !errors.Is(err, migrate.ErrNoChange) {
+	// 		return fmt.Errorf("failed to rollback migration: %w", err)
+	// 	}
+	// }
 	if err := m.Up(); err != nil {
 
 		// TODO для переключения версии миграции
@@ -97,10 +103,10 @@ func runMigrations(dsn string) error {
 	return nil
 }
 
-func (db *dbPgx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+func (db *DbPgx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
 	return db.conn.Query(ctx, sql, args...)
 }
 
-func (db *dbPgx) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+func (db *DbPgx) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 	return db.conn.Exec(ctx, sql, args...)
 }

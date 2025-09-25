@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -16,7 +15,6 @@ func IsValidLuhn(numberOrder string) bool {
 	}
 	sum := 0
 	arr := intToArr(num)
-	fmt.Println(arr)
 
 	parity := len(arr) % 2
 
