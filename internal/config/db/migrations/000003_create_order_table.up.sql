@@ -7,7 +7,6 @@ CREATE TABLE orders (
   accrual NUMERIC(15,2) NOT NULL,
   status_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
-  created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   uploaded_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   
   CONSTRAINT fk_orders_status 

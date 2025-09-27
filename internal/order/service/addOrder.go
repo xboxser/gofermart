@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"gophermart/internal/order/repository"
 	"net/http"
 )
@@ -19,7 +18,7 @@ func AddOrder(orderNumber string, userId int) (int, error) {
 		}
 		return http.StatusOK, nil
 	}
-	fmt.Println(userId)
+
 	err = orderRepository.AddOrder(orderNumber, userId)
 	if err != nil {
 		return http.StatusInternalServerError, err

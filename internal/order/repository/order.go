@@ -53,3 +53,30 @@ func (o *OrderRepository) AddOrder(number string, userId int) error {
 	}
 	return nil
 }
+
+func (o *OrderRepository) GetOrders(userId int) ([]model.Order, error) {
+	orders := []model.Order{}
+	query := `SELECT orders.id, orders.user_id, orders.accrual, orders.number, orders.uploaded_at, statuses.name FROM orders 
+	JOIN statuses ON orders.status_id = statuses.id WHERE user_id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	rows, err := o.db.Query(ctx, query, userId)
+	if err != nil {
+		log.Println("Error query:", err)
+		return orders, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var order model.Order
+		err := rows.Scan(&order.ID, &order.UserId, &order.Accrual, &order.Number, &order.Uploaded_at, &order.StatusName)
+		if err != nil {
+			log.Println("error scan order", err)
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
+
+}
