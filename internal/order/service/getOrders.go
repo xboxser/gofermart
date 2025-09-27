@@ -26,7 +26,7 @@ func GetOrders(userId int) ([]model.APIOrder, error) {
 		}
 
 		apiOrder.Status = order.StatusName
-		apiOrder.Uploaded_at = order.Uploaded_at.Format(time.RFC3339)
+		apiOrder.UploadedAt = order.Uploaded_at.Format(time.RFC3339)
 		apiOrders = append(apiOrders, apiOrder)
 	}
 

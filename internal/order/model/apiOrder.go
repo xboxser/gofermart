@@ -6,5 +6,5 @@ type APIOrder struct {
 	Status  string  `json:"status"`
 	Accrual float64 `json:"accrual,omitempty"`
 	// формат RFC3339
-	Uploaded_at string `json:"uploaded_at"`
+	UploadedAt string `json:"uploaded_at"`
 }
