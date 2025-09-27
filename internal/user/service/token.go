@@ -30,6 +30,7 @@ type Claims struct {
 
 // BuildJWTString создаёт токен и возвращает его в виде строки.
 func BuildJWTString(userID int) (string, error) {
+	fmt.Println("create token", userID)
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -67,6 +68,6 @@ func GetUserID(tokenString string) int {
 		return -1
 	}
 
-	fmt.Println("Token os valid")
+	fmt.Println("Token os valid", claims.UserID)
 	return claims.UserID
 }

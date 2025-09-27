@@ -38,12 +38,13 @@ func Login(res http.ResponseWriter, req *http.Request) {
 
 	userID, err := service.Login(user)
 	if err != nil {
-		if userID > 0 {
-			http.Error(res, "user not found", http.StatusUnauthorized)
-			return
-		}
 		http.Error(res, err.Error(), http.StatusInternalServerError)
 		log.Println("error login", err)
+		return
+	}
+
+	if userID < 0 {
+		http.Error(res, "user not found", http.StatusUnauthorized)
 		return
 	}
 
