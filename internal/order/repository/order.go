@@ -31,7 +31,7 @@ func (o *OrderRepository) GetOrderByNumber(orderNumber string) (model.Order, err
 
 	var order model.Order
 	if rows.Next() {
-		err := rows.Scan(&order.ID, &order.UserId, &order.Accrual, &order.Number, &order.StatusName)
+		err := rows.Scan(&order.ID, &order.UserID, &order.Accrual, &order.Number, &order.StatusName)
 		if err != nil {
 			log.Println("error scan order", err)
 			return model.Order{}, err
@@ -70,7 +70,7 @@ func (o *OrderRepository) GetOrders(userId int) ([]model.Order, error) {
 
 	for rows.Next() {
 		var order model.Order
-		err := rows.Scan(&order.ID, &order.UserId, &order.Accrual, &order.Number, &order.Uploaded_at, &order.StatusName)
+		err := rows.Scan(&order.ID, &order.UserID, &order.Accrual, &order.Number, &order.Uploaded_at, &order.StatusName)
 		if err != nil {
 			log.Println("error scan order", err)
 			return orders, err

@@ -13,7 +13,7 @@ func AddOrder(orderNumber string, userId int) (int, error) {
 	}
 
 	if order.ID != 0 {
-		if userId != order.UserId {
+		if userId != order.UserID {
 			return http.StatusConflict, nil
 		}
 		return http.StatusOK, nil
