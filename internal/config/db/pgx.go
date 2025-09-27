@@ -15,23 +15,23 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
-var globalDB *DbPgx
+var globalDB *DBPgx
 var onceDB sync.Once
 
-type DbPgx struct {
+type DBPgx struct {
 	conn *pgx.Conn
 	// TODO перенести PostgresErrorClassifier из проекта метрик
 }
 
 // gofermart_user qwerty!@3
 
-func NewDBPgx(ctx context.Context, connStr string) (*DbPgx, error) {
+func NewDBPgx(ctx context.Context, connStr string) (*DBPgx, error) {
 	conn, err := pgx.Connect(ctx, connStr)
 	if err != nil {
 		return nil, err
 	}
 
-	return &DbPgx{
+	return &DBPgx{
 		conn: conn,
 	}, nil
 }
@@ -56,11 +56,11 @@ func GetConn() *pgx.Conn {
 	return globalDB.conn
 }
 
-func GetDB() *DbPgx {
+func GetDB() *DBPgx {
 	return globalDB
 }
 
-func (db *DbPgx) Close() error {
+func (db *DBPgx) Close() error {
 	if db.conn != nil {
 		return db.conn.Close(context.Background())
 	}
@@ -103,10 +103,10 @@ func runMigrations(dsn string) error {
 	return nil
 }
 
-func (db *DbPgx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+func (db *DBPgx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
 	return db.conn.Query(ctx, sql, args...)
 }
 
-func (db *DbPgx) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+func (db *DBPgx) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 	return db.conn.Exec(ctx, sql, args...)
 }

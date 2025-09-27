@@ -23,7 +23,7 @@ func Register(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var user model.ApiUser
+	var user model.APIUser
 
 	if err = json.Unmarshal(buf.Bytes(), &user); err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)

@@ -9,7 +9,7 @@ import (
 )
 
 type StatusRepository struct {
-	db *db.DbPgx
+	db *db.DBPgx
 }
 
 func NewStatusRepository() *StatusRepository {
