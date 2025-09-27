@@ -2,12 +2,11 @@ package middleware
 
 import (
 	"context"
+	"gophermart/internal/user/handler"
 	"gophermart/internal/user/service"
 	"log"
 	"net/http"
 )
-
-const UserIDContextKey = "userID"
 
 // Проверка наличия токена в запросе
 func CheckToken(next http.Handler) http.Handler {
@@ -28,7 +27,7 @@ func CheckToken(next http.Handler) http.Handler {
 		}
 		// Добавляем userID в контекст запроса
 		// На основе данного поля определяем пользователя в дальнейшем
-		ctx := context.WithValue(r.Context(), UserIDContextKey, userID)
+		ctx := context.WithValue(r.Context(), handler.UserIDContextKey, userID)
 		// Передаем запрос с обновленным контекстом дальше
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

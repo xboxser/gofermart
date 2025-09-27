@@ -2,9 +2,9 @@ package handler
 
 import (
 	"bytes"
-	"gophermart/internal/handler/middleware"
 	"gophermart/internal/order/service"
 	"gophermart/internal/order/validator"
+	"gophermart/internal/user/handler"
 	"net/http"
 )
 
@@ -16,8 +16,7 @@ import (
 // 422 — неверный формат номера заказа;
 // 500 — внутренняя ошибка сервера.
 func AddOrder(res http.ResponseWriter, req *http.Request) {
-
-	userID := req.Context().Value(middleware.UserIDContextKey).(int)
+	userID := handler.GetUserRequest(req)
 	if userID == 0 {
 		http.Error(res, "user not found", http.StatusUnauthorized)
 		return

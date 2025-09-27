@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"gophermart/internal/handler/middleware"
 	"gophermart/internal/order/service"
+	"gophermart/internal/user/handler"
 	"net/http"
 )
 
@@ -12,7 +12,7 @@ import (
 // `401` — пользователь не авторизован.
 // `500` — внутренняя ошибка сервера.
 func GetOrders(res http.ResponseWriter, req *http.Request) {
-	userID := req.Context().Value(middleware.UserIDContextKey).(int)
+	userID := handler.GetUserRequest(req)
 	if userID == 0 {
 		http.Error(res, "user not found", http.StatusUnauthorized)
 		return
