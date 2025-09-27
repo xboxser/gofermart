@@ -31,7 +31,7 @@ func Register(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err := validator.ValidateModelUserApi(user); err != nil {
+	if err := validator.ValidateModelUserAPI(user); err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		log.Println("Validation failed:", err)
 	}

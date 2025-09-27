@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidateModelUserApi(t *testing.T) {
+func TestValidateModelUserAPI(t *testing.T) {
 	if validator.Validate == nil {
 		validator.Init()
 	}
@@ -27,7 +27,7 @@ func TestValidateModelUserApi(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateModelUserApi(tt.user)
+			err := ValidateModelUserAPI(tt.user)
 			if !tt.valError {
 				require.NoError(t, err)
 				return

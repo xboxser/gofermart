@@ -9,7 +9,7 @@ import (
 )
 
 type OrderRepository struct {
-	db *db.DbPgx
+	db *db.DBPgx
 }
 
 func NewOrderRepository() *OrderRepository {
