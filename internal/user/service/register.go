@@ -10,12 +10,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Register(apiUser model.ApiUser) (int, error) {
+func Register(apiUser model.APIUser) (int, error) {
 	db := db.GetDB()
 
 	user, err := GetUserForLogin(apiUser.Login)
 
-	if user.Id != 0 || err != nil {
+	if user.ID != 0 || err != nil {
 		return -1, nil
 	}
 

@@ -23,7 +23,7 @@ func GetUserForLogin(login string) (model.User, error) {
 
 	var user model.User
 	if rows.Next() {
-		err := rows.Scan(&user.Id, &user.Login, &user.Password)
+		err := rows.Scan(&user.ID, &user.Login, &user.Password)
 		if err != nil {
 			log.Println("error scan user", err)
 			return model.User{}, err

@@ -9,13 +9,13 @@ import (
 func Login(apiUser model.APIUser) (int, error) {
 
 	user, err := GetUserForLogin(apiUser.Login)
-	if user.Id == 0 || err != nil {
+	if user.ID == 0 || err != nil {
 		return -1, err
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(apiUser.Password))
 	if err != nil {
-		return user.Id, err
+		return user.ID, err
 	}
-	return user.Id, nil
+	return user.ID, nil
 }
