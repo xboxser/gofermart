@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-func GetOrders(userId int) ([]model.ApiOrder, error) {
-	apiOrders := []model.ApiOrder{}
+func GetOrders(userId int) ([]model.APIOrder, error) {
+	apiOrders := []model.APIOrder{}
 	orders, err := repository.NewOrderRepository().GetOrders(userId)
 	if err != nil {
-		return []model.ApiOrder{}, err
+		return []model.APIOrder{}, err
 	}
 
 	if len(orders) == 0 {
@@ -19,7 +19,7 @@ func GetOrders(userId int) ([]model.ApiOrder, error) {
 	}
 
 	for _, order := range orders {
-		var apiOrder model.ApiOrder
+		var apiOrder model.APIOrder
 		apiOrder.Number = strconv.Itoa(order.Number)
 		if order.Accrual != 0 {
 			apiOrder.Accrual = order.Accrual

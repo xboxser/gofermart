@@ -1,7 +1,7 @@
 package model
 
 // модель для использования в АПИ
-type ApiOrder struct {
+type APIOrder struct {
 	Number  string  `json:"number"`
 	Status  string  `json:"status"`
 	Accrual float64 `json:"accrual,omitempty"`
