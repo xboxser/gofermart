@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Login(apiUser model.ApiUser) (int, error) {
+func Login(apiUser model.APIUser) (int, error) {
 
 	user, err := GetUserForLogin(apiUser.Login)
 	if user.Id == 0 || err != nil {

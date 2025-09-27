@@ -16,13 +16,13 @@ func TestValidateModelUserAPI(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		user     model.ApiUser
+		user     model.APIUser
 		valError bool
 	}{
-		{name: "valid parameters", user: model.ApiUser{Login: "qwerty", Password: "pass"}, valError: false},
-		{name: "empty parameters", user: model.ApiUser{Login: "", Password: ""}, valError: true},
-		{name: "nil password", user: model.ApiUser{Login: "qwerty"}, valError: true},
-		{name: "nil login", user: model.ApiUser{Login: "qwerty"}, valError: true},
+		{name: "valid parameters", user: model.APIUser{Login: "qwerty", Password: "pass"}, valError: false},
+		{name: "empty parameters", user: model.APIUser{Login: "", Password: ""}, valError: true},
+		{name: "nil password", user: model.APIUser{Login: "qwerty"}, valError: true},
+		{name: "nil login", user: model.APIUser{Login: "qwerty"}, valError: true},
 	}
 
 	for _, tt := range tests {
