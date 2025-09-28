@@ -18,10 +18,10 @@ func NewConfigServer() *configServer {
 	_ = env.Parse(&cfg)
 
 	serverFlags := flag.NewFlagSet("server", flag.ExitOnError)
-	address := serverFlags.String("a", "localhost:8080", "адрес и порт запуска сервиса")
+	address := serverFlags.String("a", "localhost:8008", "адрес и порт запуска сервиса")
 	//
 	databaseURI := serverFlags.String("d", "postgres://gofermart_user:qwerty!@3@localhost:5432/gofermart_db?sslmode=disable", "адрес подключения к базе данных")
-	accrualAddress := serverFlags.String("r", "localhost:8000", "адрес системы расчёта начислений")
+	accrualAddress := serverFlags.String("r", "http://localhost:8080", "адрес системы расчёта начислений")
 	serverFlags.Parse(os.Args[1:])
 
 	if cfg.RunAddress == "" {

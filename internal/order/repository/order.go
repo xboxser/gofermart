@@ -78,5 +78,35 @@ func (o *OrderRepository) GetOrders(userId int) ([]model.Order, error) {
 		orders = append(orders, order)
 	}
 	return orders, nil
+}
 
+// получаем список номеров заказа, для проверка сервисом Accrual
+func (o *OrderRepository) GetOrdersForAccrual() ([]int, error) {
+	var orders []int
+
+	query := `SELECT number FROM orders 
+	JOIN statuses ON orders.status_id = statuses.id 
+	WHERE statuses.name IN ($1, $2)
+	`
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	rows, err := o.db.Query(ctx, query, model.OrderStatusProcessing, model.OrderStatusNew)
+	if err != nil {
+		log.Println("Error query:", err)
+		return orders, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var number int
+		err := rows.Scan(&number)
+		if err != nil {
+			log.Println("error scan order", err)
+			return orders, err
+		}
+		orders = append(orders, number)
+	}
+
+	return orders, nil
 }

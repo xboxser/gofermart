@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"gophermart/internal/accrual/service"
 	"gophermart/internal/config"
 	"gophermart/internal/config/db"
 	"gophermart/internal/handler"
@@ -26,7 +27,11 @@ func main() {
 	defer db.GetDB().Close()
 
 	validator.Init()
+
 	handler := handler.NewServerHandler(config.RunAddress)
+
+	accrualService := service.NewAccrualService(config.AccrualSystemAddress)
+	accrualService.Run()
 	handler.Run()
 
 }

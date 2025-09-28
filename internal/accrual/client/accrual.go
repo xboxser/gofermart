@@ -1,0 +1,41 @@
+package client
+
+import (
+	"encoding/json"
+	"fmt"
+	"gophermart/internal/accrual/model"
+	"net/http"
+)
+
+type AccrualClient struct {
+	client *http.Client
+	url    string
+}
+
+func NewAccrualClient(url string) *AccrualClient {
+	return &AccrualClient{
+		client: &http.Client{},
+		url:    url,
+	}
+}
+
+func (a *AccrualClient) GetOrder(orderNumber string) (model.OrderAccrual, error, int) {
+	var order model.OrderAccrual
+	res, err := a.client.Get(a.url + "/api/orders/" + orderNumber)
+	if err != nil {
+		return order, err, http.StatusInternalServerError
+	}
+	defer res.Body.Close()
+
+	fmt.Println("AccrualClient: GetOrder", res.StatusCode, orderNumber)
+
+	if res.StatusCode != http.StatusOK {
+		return order, nil, res.StatusCode
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&order)
+	if err != nil {
+		return order, err, res.StatusCode
+	}
+	return order, nil, res.StatusCode
+}
