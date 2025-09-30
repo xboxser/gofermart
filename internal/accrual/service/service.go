@@ -1,7 +1,5 @@
 package service
 
-import "fmt"
-
 type AccrualService struct {
 	AccrualSystemAddress string
 }
@@ -17,8 +15,9 @@ func (a *AccrualService) Run() {
 	go func() {
 		// сигнальный канал для завершения горутин
 		doneCh := make(chan struct{})
+
 		// закрываем его при завершении программы
-		defer close(doneCh)
+		// defer close(doneCh)
 
 		// канал с данными
 		inputCh := generator(doneCh)
@@ -29,16 +28,10 @@ func (a *AccrualService) Run() {
 
 		fanIn := NewFanIn(doneCh)
 		resultCh := fanIn.Run(channels...)
-		// // а теперь объединяем десять каналов в один
-		// addResultCh := fanIn(doneCh, channels...)
 
-		// // передаём тот один канал в следующий этап обработки
-		// resultCh := multiply(doneCh, addResultCh)
+		consumer := NewConsumer(resultCh, doneCh)
+		consumer.Run()
 
-		// выводим результаты расчетов из канала
-		for res := range resultCh {
-			fmt.Println("resultCh", res)
-		}
 	}()
 
 }

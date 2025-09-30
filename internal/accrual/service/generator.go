@@ -16,6 +16,7 @@ func generator(doneCh chan struct{}) chan int {
 		// как отправители закрываем канал, когда всё отправим
 		defer close(inputCh)
 
+		fmt.Println("Запускаем генератор")
 		ticker := time.NewTicker(2 * time.Second)
 		defer ticker.Stop()
 

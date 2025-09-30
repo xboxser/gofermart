@@ -66,6 +66,7 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 	return addRes
 }
 
+// отправка запроса на сервер
 func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
 	order, err, status := f.client.GetOrder(strconv.Itoa(orderNumber))
 	if err != nil {

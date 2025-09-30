@@ -110,3 +110,37 @@ func (o *OrderRepository) GetOrdersForAccrual() ([]int, error) {
 
 	return orders, nil
 }
+
+func (o *OrderRepository) SetStatusProcessing(number string) error {
+	return o.setStatus(number, model.OrderStatusProcessing)
+}
+
+func (o *OrderRepository) SetStatusInvalid(number string) error {
+	return o.setStatus(number, model.OrderStatusInvalid)
+}
+
+func (o *OrderRepository) setStatus(number string, status string) error {
+	query := `UPDATE orders SET status_id = status.id
+		FROM status
+		WHERE orders.number = $1
+  			AND status.name = $2;`
+	_, err := o.db.Exec(context.Background(), query, number, status)
+	if err != nil {
+		log.Println("Error setStatus query:", err)
+		return err
+	}
+	return nil
+}
+
+func (o *OrderRepository) SetStatusProcessed(number string, accrual int) error {
+	query := `UPDATE orders SET status_id = status.id, accrual = $1
+		FROM status
+		WHERE orders.number = $2
+  			AND status.name = $3;`
+	_, err := o.db.Exec(context.Background(), query, accrual, number, model.OrderStatusProcessed)
+	if err != nil {
+		log.Println("Error SetStatusProcessed query:", err)
+		return err
+	}
+	return nil
+}
