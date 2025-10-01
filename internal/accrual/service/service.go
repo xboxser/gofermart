@@ -2,11 +2,13 @@ package service
 
 type AccrualService struct {
 	AccrualSystemAddress string
+	AccrualCountChan     int
 }
 
-func NewAccrualService(AccrualSystemAddress string) *AccrualService {
+func NewAccrualService(AccrualSystemAddress string, AccrualCountChan int) *AccrualService {
 	return &AccrualService{
 		AccrualSystemAddress: AccrualSystemAddress,
+		AccrualCountChan:     AccrualCountChan,
 	}
 }
 
@@ -23,7 +25,7 @@ func (a *AccrualService) Run() {
 		inputCh := generator(doneCh)
 
 		// запускаем fanOut и получаем результаты обработки данных
-		fanOut := NewFanOut(5, a.AccrualSystemAddress, doneCh, inputCh)
+		fanOut := NewFanOut(a.AccrualCountChan, a.AccrualSystemAddress, doneCh, inputCh)
 		channels := fanOut.Run()
 
 		fanIn := NewFanIn(doneCh)

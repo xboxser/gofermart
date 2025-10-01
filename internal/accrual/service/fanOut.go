@@ -6,6 +6,7 @@ import (
 	"gophermart/internal/accrual/model"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type fanOut struct {
@@ -66,9 +67,30 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 	return addRes
 }
 
-// отправка запроса на сервер
+// отправка запроса на сервер Accrual
 func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
-	order, status, err := f.client.GetOrder(strconv.Itoa(orderNumber))
+	number := strconv.Itoa(orderNumber)
+	// Тайминги отправки запроса на сервер
+	retryIntervals := []time.Duration{0, 1 * time.Second, 3 * time.Second, 5 * time.Second}
+
+	order, status, err := f.client.GetOrder(number)
+	for _, retryInterval := range retryIntervals {
+		if retryInterval > 0 {
+			fmt.Println("retrying time", retryInterval)
+			time.Sleep(retryInterval)
+			order, status, err = f.client.GetOrder(number)
+		}
+		// Если сервер вернул ошибку что слишком часто обращаемся  к нему
+		// сразу уходим в ретрай
+		if status >= 429 {
+			continue
+		}
+		if err == nil {
+			break
+		}
+
+	}
+
 	if err != nil {
 		return order, err
 	}
@@ -77,4 +99,5 @@ func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
 		return order, fmt.Errorf("status code: %d", status)
 	}
 	return order, nil
+
 }

@@ -30,7 +30,7 @@ func main() {
 
 	handler := handler.NewServerHandler(config.RunAddress)
 
-	accrualService := service.NewAccrualService(config.AccrualSystemAddress)
+	accrualService := service.NewAccrualService(config.AccrualSystemAddress, config.AccrualCountChan)
 	accrualService.Run()
 	handler.Run()
 
