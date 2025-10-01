@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func AddOrder(orderNumber string, userId int) (int, error) {
+func AddOrder(orderNumber string, userID int) (int, error) {
 	orderRepository := repository.NewOrderRepository()
 	order, err := orderRepository.GetOrderByNumber(orderNumber)
 	if err != nil {
@@ -13,13 +13,13 @@ func AddOrder(orderNumber string, userId int) (int, error) {
 	}
 
 	if order.ID != 0 {
-		if userId != order.UserID {
+		if userID != order.UserID {
 			return http.StatusConflict, nil
 		}
 		return http.StatusOK, nil
 	}
 
-	err = orderRepository.AddOrder(orderNumber, userId)
+	err = orderRepository.AddOrder(orderNumber, userID)
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}

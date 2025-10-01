@@ -19,23 +19,23 @@ func NewAccrualClient(url string) *AccrualClient {
 	}
 }
 
-func (a *AccrualClient) GetOrder(orderNumber string) (model.OrderAccrual, error, int) {
+func (a *AccrualClient) GetOrder(orderNumber string) (model.OrderAccrual, int, error) {
 	var order model.OrderAccrual
 	res, err := a.client.Get(a.url + "/api/orders/" + orderNumber)
 	if err != nil {
-		return order, err, http.StatusInternalServerError
+		return order, http.StatusInternalServerError, err
 	}
 	defer res.Body.Close()
 
 	fmt.Println("AccrualClient: GetOrder", res.StatusCode, orderNumber)
 
 	if res.StatusCode != http.StatusOK {
-		return order, nil, res.StatusCode
+		return order, res.StatusCode, nil
 	}
 
 	err = json.NewDecoder(res.Body).Decode(&order)
 	if err != nil {
-		return order, err, res.StatusCode
+		return order, res.StatusCode, err
 	}
-	return order, nil, res.StatusCode
+	return order, res.StatusCode, nil
 }

@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func GetOrders(userId int) ([]model.APIOrder, error) {
+func GetOrders(userID int) ([]model.APIOrder, error) {
 	apiOrders := []model.APIOrder{}
-	orders, err := repository.NewOrderRepository().GetOrders(userId)
+	orders, err := repository.NewOrderRepository().GetOrders(userID)
 	if err != nil {
 		return []model.APIOrder{}, err
 	}
@@ -26,7 +26,7 @@ func GetOrders(userId int) ([]model.APIOrder, error) {
 		}
 
 		apiOrder.Status = order.StatusName
-		apiOrder.UploadedAt = order.Uploaded_at.Format(time.RFC3339)
+		apiOrder.UploadedAt = order.UploadedAt.Format(time.RFC3339)
 		apiOrders = append(apiOrders, apiOrder)
 	}
 

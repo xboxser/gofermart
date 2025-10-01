@@ -40,28 +40,28 @@ func (o *OrderRepository) GetOrderByNumber(orderNumber string) (model.Order, err
 	return order, nil
 }
 
-func (o *OrderRepository) AddOrder(number string, userId int) error {
+func (o *OrderRepository) AddOrder(number string, userID int) error {
 	statusRepository := NewStatusRepository()
 	statuses, err := statusRepository.GetStatusList()
 	if err != nil {
 		return err
 	}
 	query := `INSERT INTO orders (number, user_id, status_id, accrual) VALUES ($1, $2, $3, $4) RETURNING id`
-	_, err = o.db.Exec(context.Background(), query, number, userId, statuses.List[model.OrderStatusNew], 0)
+	_, err = o.db.Exec(context.Background(), query, number, userID, statuses.List[model.OrderStatusNew], 0)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *OrderRepository) GetOrders(userId int) ([]model.Order, error) {
+func (o *OrderRepository) GetOrders(userID int) ([]model.Order, error) {
 	orders := []model.Order{}
 	query := `SELECT orders.id, orders.user_id, orders.accrual, orders.number, orders.uploaded_at, statuses.name FROM orders 
 	JOIN statuses ON orders.status_id = statuses.id WHERE user_id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	rows, err := o.db.Query(ctx, query, userId)
+	rows, err := o.db.Query(ctx, query, userID)
 	if err != nil {
 		log.Println("Error query:", err)
 		return orders, err
@@ -70,7 +70,7 @@ func (o *OrderRepository) GetOrders(userId int) ([]model.Order, error) {
 
 	for rows.Next() {
 		var order model.Order
-		err := rows.Scan(&order.ID, &order.UserID, &order.Accrual, &order.Number, &order.Uploaded_at, &order.StatusName)
+		err := rows.Scan(&order.ID, &order.UserID, &order.Accrual, &order.Number, &order.UploadedAt, &order.StatusName)
 		if err != nil {
 			log.Println("error scan order", err)
 			return orders, err

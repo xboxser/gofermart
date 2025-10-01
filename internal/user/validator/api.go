@@ -20,13 +20,13 @@ func ValidateModelUserAPI(user model.APIUser) error {
 			for _, fieldError := range validationErrors {
 				switch fieldError.Field() {
 				case "Login":
-					return errors.New("Login is required")
+					return errors.New("login is required")
 				case "Password":
-					return errors.New("Password is required")
+					return errors.New("password is required")
 				}
 			}
 		} else {
-			return errors.New("Invalid input data")
+			return errors.New("invalid input data")
 		}
 
 	}

@@ -27,10 +27,8 @@ func IsValidLuhn(numberOrder string) bool {
 		}
 		sum += val
 	}
-	if sum%10 == 0 {
-		return true
-	}
-	return false
+
+	return sum%10 == 0
 }
 
 func intToArr(num int) []int {
