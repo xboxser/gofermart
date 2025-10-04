@@ -1,6 +1,8 @@
 package model
 
 type Balance struct {
-	Current   float64 `json:"current"`
+	// Текущий баланс пользователя
+	Current float64 `json:"current"`
+	// Сумма потраченных средств
 	Withdrawn float64 `json:"withdrawn"`
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"gophermart/internal/accrual/service"
 	"gophermart/internal/config"
 	"gophermart/internal/config/db"
 	"gophermart/internal/handler"
@@ -14,7 +13,6 @@ import (
 // TODO добавить логирование
 // TODO прикрутить свагер
 // TODO Сжатие данных при отправке
-// TODO Добавить сессии
 
 func main() {
 	config := config.NewConfigServer()
@@ -30,8 +28,8 @@ func main() {
 
 	handler := handler.NewServerHandler(config.RunAddress)
 
-	accrualService := service.NewAccrualService(config.AccrualSystemAddress, config.AccrualCountChan)
-	accrualService.Run()
+	// accrualService := service.NewAccrualService(config.AccrualSystemAddress, config.AccrualCountChan)
+	// accrualService.Run()
 	handler.Run()
 
 }

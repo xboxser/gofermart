@@ -12,15 +12,6 @@ erDiagram
 		int id PK ""  
 		string name  ""  
 	}
-	orders {
-		int id PK ""  
-		int user_id FK ""  
-		int status_id FK ""  
-		int number  ""  
-		numeric accrual  "numeric(15,2)"  
-		datetime created_at  ""  
-		datetime uploaded_at  ""  
-	}
 	users {
 		int id PK ""  
 		string login  ""  
@@ -34,12 +25,26 @@ erDiagram
 		numeric current  "numeric(15,2)"  
 		numeric withdrawn  "numeric(15,2)"  
 	}
+	orders {
+		int id PK ""  
+		int user_id FK ""  
+		int status_id FK ""  
+		int number  ""  
+		numeric accrual  "numeric(15,2)"  
+		datetime created_at  ""  
+		datetime uploaded_at  ""  
+	}
 	withdrawals {
-		int id PK "Пока по связям в данной таблице вопрос "  
+		int id PK ""  
+		int user_id FK ""  
 		int order_id  ""  
 		datetime processed_at  ""  
+		numeric sum  "numeric(15,2)"  
 	}
+
 	users||--|{orders:"  "
 	statuses||--|{orders:"  "
 	balances||--||users:"  "
+	withdrawals}|--||users:"  "
+
 ```
