@@ -32,17 +32,17 @@ func Register(apiUser model.APIUser) (int, error) {
 
 	userID, err := userRepository.RegisterUser(tx, apiUser.Login, apiUser.Password)
 	if err != nil {
-		return -1, fmt.Errorf("Error registering user: %v", err)
+		return -1, fmt.Errorf("error registering user: %v", err)
 	}
 
 	if userID == -1 {
-		return -1, fmt.Errorf("Error registering user")
+		return -1, fmt.Errorf("error registering user")
 	}
 
 	balanceRepository := balanceRepository.NewBalanceRepository()
 	err = balanceRepository.CreateBalanceUser(tx, ctx, userID)
 	if err != nil {
-		return -1, fmt.Errorf("Error creating balance: %v", err)
+		return -1, fmt.Errorf("error creating balance: %v", err)
 	}
 
 	tx.Commit(ctx)

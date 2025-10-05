@@ -58,11 +58,11 @@ func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
 	order, err := c.repositoryOrder.GetOrderByNumber(OrderAccrual.Order)
 	fmt.Println("order", order)
 	if err != nil || order.ID == 0 {
-		return fmt.Errorf("Error get order")
+		return fmt.Errorf("error get order")
 	}
 
 	if order.UserID == 0 {
-		return fmt.Errorf("Error get user")
+		return fmt.Errorf("error get user")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -78,19 +78,19 @@ func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
 	// Устанавливаем статус, что по заказу все расчеты прошли
 	err = c.repositoryOrder.SetStatusProcessed(tx, ctx, OrderAccrual.Order, OrderAccrual.Accrual)
 	if err != nil {
-		return fmt.Errorf("Error set status processed")
+		return fmt.Errorf("error set status processed")
 	}
 
 	// Получаем заказ, для индетификации пользователя
 	order, err = c.repositoryOrder.GetOrderByNumber(OrderAccrual.Order)
 	if err != nil {
-		return fmt.Errorf("Error get order")
+		return fmt.Errorf("error get order")
 	}
 
 	// Начисляем баллы на счет пользователя
 	err = c.repositoryBalance.AddBalanceUser(tx, ctx, order.UserID, OrderAccrual.Accrual)
 	if err != nil {
-		return fmt.Errorf("Error add balance")
+		return fmt.Errorf("error add balance")
 	}
 
 	tx.Commit(ctx)

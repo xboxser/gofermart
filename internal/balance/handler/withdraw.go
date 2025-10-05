@@ -5,16 +5,17 @@ import (
 	"encoding/json"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/balance/service"
+	"gophermart/internal/order/validator"
 	"gophermart/internal/user/handler"
 
 	"log"
 	"net/http"
 )
 
-// TODO 200 — успешная обработка запроса;
+// 200 — успешная обработка запроса;
 // 401 — пользователь не авторизован;
 // 402 — на счету недостаточно средств;
-// TODO 422 — неверный номер заказа;
+// 422 — неверный номер заказа;
 // 500 — внутренняя ошибка сервера.
 func Withdraw(res http.ResponseWriter, req *http.Request) {
 	var buf bytes.Buffer
@@ -30,6 +31,13 @@ func Withdraw(res http.ResponseWriter, req *http.Request) {
 	if err = json.Unmarshal(buf.Bytes(), &withdrawModel); err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		log.Println("error read json", err)
+		return
+	}
+
+	IsValidLuhn := validator.IsValidLuhn(withdrawModel.OrderID)
+
+	if !IsValidLuhn {
+		http.Error(res, "order number is not valid", http.StatusUnprocessableEntity)
 		return
 	}
 
