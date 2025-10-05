@@ -2,12 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
+	balanceRepository "gophermart/internal/balance/repository"
 	"gophermart/internal/config/db"
 	"gophermart/internal/user/model"
+	"gophermart/internal/user/repository"
 	"log"
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(apiUser model.APIUser) (int, error) {
@@ -18,31 +19,33 @@ func Register(apiUser model.APIUser) (int, error) {
 	if user.ID != 0 || err != nil {
 		return -1, nil
 	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(apiUser.Password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Fatalf("Error hashing password: %v", err)
-		return -1, err
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	userID := -1
-	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
-	rows, err := db.Query(ctx, query, apiUser.Login, string(hashedPassword))
-	if err != nil {
-		log.Printf("Insert error: %v", err)
-		return -1, err
-	}
-	defer rows.Close()
+	userRepository := repository.NewUserRepository(ctx)
 
-	if rows.Next() {
-		err = rows.Scan(&userID)
-		if err != nil {
-			log.Printf("Scan error: %v", err)
-			return -1, err
-		}
+	tx, err := db.Begin(ctx)
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer tx.Rollback(ctx) // Если не отработает commit, то откатываем в любом случае
+
+	userID, err := userRepository.RegisterUser(tx, apiUser.Login, apiUser.Password)
+	if err != nil {
+		return -1, fmt.Errorf("Error registering user: %v", err)
+	}
+
+	if userID == -1 {
+		return -1, fmt.Errorf("Error registering user")
+	}
+
+	balanceRepository := balanceRepository.NewBalanceRepository()
+	err = balanceRepository.CreateBalanceUser(tx, ctx, userID)
+	if err != nil {
+		return -1, fmt.Errorf("Error creating balance: %v", err)
+	}
+
+	tx.Commit(ctx)
+
 	return userID, nil
 }
