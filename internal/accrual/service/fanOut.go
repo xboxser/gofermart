@@ -56,6 +56,8 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 				return
 			// если doneCh не закрыт, отправляем результат вычисления в канал результата
 			default:
+				order.Order = strconv.Itoa(orderNumber)
+				fmt.Println("default err", order, err)
 				if err != nil {
 					continue
 				}
@@ -68,6 +70,10 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 }
 
 // отправка запроса на сервер Accrual
+// `200` — успешная обработка запроса.
+// `204` — заказ не зарегистрирован в системе расчета.
+// `429` — превышено количество запросов к сервису.
+
 func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
 	number := strconv.Itoa(orderNumber)
 	// Тайминги отправки запроса на сервер
@@ -94,7 +100,7 @@ func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
 	if err != nil {
 		return order, err
 	}
-
+	return order, nil
 	if status != http.StatusOK {
 		return order, fmt.Errorf("status code: %d", status)
 	}

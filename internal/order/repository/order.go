@@ -6,6 +6,8 @@ import (
 	"gophermart/internal/order/model"
 	"log"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type OrderRepository struct {
@@ -16,6 +18,7 @@ func NewOrderRepository() *OrderRepository {
 	return &OrderRepository{db: db.GetDB()}
 }
 
+// Получаем информацию по заказу по его номеру
 func (o *OrderRepository) GetOrderByNumber(orderNumber string) (model.Order, error) {
 
 	query := `SELECT orders.id, orders.user_id, orders.accrual, orders.number, statuses.name FROM orders 
@@ -132,12 +135,13 @@ func (o *OrderRepository) setStatus(number string, status string) error {
 	return nil
 }
 
-func (o *OrderRepository) SetStatusProcessed(number string, accrual int) error {
-	query := `UPDATE orders SET status_id = status.id, accrual = $1
-		FROM status
+func (o *OrderRepository) SetStatusProcessed(tx pgx.Tx, ctx context.Context, number string, accrual float64) error {
+
+	query := `UPDATE orders SET status_id = statuses.id, accrual = $1
+		FROM statuses
 		WHERE orders.number = $2
-  			AND status.name = $3;`
-	_, err := o.db.Exec(context.Background(), query, accrual, number, model.OrderStatusProcessed)
+  			AND statuses.name = $3;`
+	_, err := tx.Exec(ctx, query, accrual, number, model.OrderStatusProcessed)
 	if err != nil {
 		log.Println("Error SetStatusProcessed query:", err)
 		return err

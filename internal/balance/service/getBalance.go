@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/balance/repository"
 )
@@ -20,6 +19,5 @@ func NewGetBalance(userID int) *GetBalance {
 
 func (g *GetBalance) GetBalanceUser() (model.Balance, error) {
 	balance, err := g.repository.GetBalanceUser(g.userID)
-	fmt.Println(balance)
 	return balance, err
 }

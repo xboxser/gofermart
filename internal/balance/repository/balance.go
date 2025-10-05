@@ -2,10 +2,13 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/config/db"
 	"log"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 type BalanceRepository struct {
@@ -18,6 +21,8 @@ func NewBalanceRepository() *BalanceRepository {
 
 func (b *BalanceRepository) GetBalanceUser(userID int) (model.Balance, error) {
 	var balance model.Balance
+	//Устанавливаем отрицательное значение withdrawn, чтобы в случае ошибки в дальнейшем можно было понять, что balance не найден
+	balance.Withdrawn = -1
 	query := `SELECT current, withdrawn FROM balance 
 	WHERE user_id = $1 LIMIT 1`
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
@@ -37,4 +42,23 @@ func (b *BalanceRepository) GetBalanceUser(userID int) (model.Balance, error) {
 		}
 	}
 	return balance, nil
+}
+
+func (b *BalanceRepository) CreateBalanceUser(tx pgx.Tx, ctx context.Context, userID int) error {
+	query := `INSERT INTO balance (user_id, current, withdrawn) VALUES ($1, 0, 0)`
+	_, err := tx.Exec(ctx, query, userID)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (b *BalanceRepository) AddBalanceUser(tx pgx.Tx, ctx context.Context, userID int, amount float64) error {
+	query := `UPDATE balance SET current = current + $1 WHERE user_id = $2`
+	_, err := tx.Exec(ctx, query, amount, userID)
+	fmt.Println("update", err)
+	if err != nil {
+		return err
+	}
+	return err
 }

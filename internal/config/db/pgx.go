@@ -103,10 +103,16 @@ func runMigrations(dsn string) error {
 	return nil
 }
 
+// для запросов с возвращаемой информацией
 func (db *DBPgx) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
 	return db.conn.Query(ctx, sql, args...)
 }
 
+// для запросов без возвращаемой информации
 func (db *DBPgx) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
 	return db.conn.Exec(ctx, sql, args...)
+}
+
+func (db *DBPgx) Begin(ctx context.Context) (pgx.Tx, error) {
+	return db.conn.Begin(ctx)
 }

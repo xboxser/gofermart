@@ -60,6 +60,4 @@ func TestNewConfigServer(t *testing.T) {
 		require.Equal(t, cfg.DatabaseURI, databaseURI)
 		require.Equal(t, cfg.RunAddress, runAddr)
 	})
-
-	// TODO добавить проверку на запись данных из env
 }
