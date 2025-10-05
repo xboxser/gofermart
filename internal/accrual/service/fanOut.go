@@ -100,7 +100,7 @@ func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
 	if err != nil {
 		return order, err
 	}
-	return order, nil
+
 	if status != http.StatusOK {
 		return order, fmt.Errorf("status code: %d", status)
 	}
