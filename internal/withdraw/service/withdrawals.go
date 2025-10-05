@@ -13,7 +13,7 @@ func NewWithdrawalsService() *WithdrawalsService {
 	return &WithdrawalsService{}
 }
 
-func (s *WithdrawalsService) Withdrawals(userID int) ([]model.ApiWithdraw, error) {
+func (s *WithdrawalsService) Withdrawals(userID int) ([]model.APIWithdraw, error) {
 	repository := repository.NewWithdrawRepository(db.GetDB())
 
 	withdrawals, err := repository.GetWithdraws(userID)

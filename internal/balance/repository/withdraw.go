@@ -21,8 +21,8 @@ func (w *WithdrawRepository) AddWithdraw(tx pgx.Tx, ctx context.Context, userID 
 	return err
 }
 
-func (w *WithdrawRepository) GetWithdraws(userID int) ([]model.ApiWithdraw, error) {
-	var withdraws []model.ApiWithdraw
+func (w *WithdrawRepository) GetWithdraws(userID int) ([]model.APIWithdraw, error) {
+	var withdraws []model.APIWithdraw
 	rows, err := w.db.Query(context.Background(), "SELECT order_id, sum, update_at FROM withdrawal WHERE user_id = $1", userID)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (w *WithdrawRepository) GetWithdraws(userID int) ([]model.ApiWithdraw, erro
 	defer rows.Close()
 
 	for rows.Next() {
-		var withdraw model.ApiWithdraw
+		var withdraw model.APIWithdraw
 		err := rows.Scan(&withdraw.OrderID, &withdraw.Sum, &withdraw.UploadedAt)
 		if err != nil {
 			return nil, err
