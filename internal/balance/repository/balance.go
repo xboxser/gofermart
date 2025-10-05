@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/config/db"
 	"log"
@@ -56,7 +55,16 @@ func (b *BalanceRepository) CreateBalanceUser(tx pgx.Tx, ctx context.Context, us
 func (b *BalanceRepository) AddBalanceUser(tx pgx.Tx, ctx context.Context, userID int, amount float64) error {
 	query := `UPDATE balance SET current = current + $1 WHERE user_id = $2`
 	_, err := tx.Exec(ctx, query, amount, userID)
-	fmt.Println("update", err)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+// Вывод средств с баланса
+func (b *BalanceRepository) WithdrawBalanceUser(tx pgx.Tx, ctx context.Context, userID int, amount float64) error {
+	query := `UPDATE balance SET current = current - $1, withdrawn = withdrawn + $1 WHERE user_id = $2`
+	_, err := tx.Exec(ctx, query, amount, userID)
 	if err != nil {
 		return err
 	}

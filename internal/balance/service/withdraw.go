@@ -1,10 +1,14 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/balance/repository"
+	"gophermart/internal/config/db"
+	"log"
 	"net/http"
+	"time"
 )
 
 type Withdraw struct {
@@ -27,7 +31,28 @@ func (w *Withdraw) Withdraw(userID int, model model.Withdraw) (int, error) {
 	if balance.Current < model.Sum {
 		return http.StatusPaymentRequired, nil
 	}
-	fmt.Println("balance", balance)
-	fmt.Println("model", model)
-	return 1, nil
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	db := db.GetDB()
+	tx, err := db.Begin(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tx.Rollback(ctx)
+
+	err = w.repositoryBalance.WithdrawBalanceUser(tx, ctx, userID, model.Sum)
+	if err != nil {
+		return http.StatusInternalServerError, fmt.Errorf("error WithdrawBalanceUser")
+	}
+
+	err = w.repositoryWithdraw.AddWithdraw(tx, ctx, userID, model.Sum, model.OrderID)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError, fmt.Errorf("error AddWithdraw")
+	}
+
+	tx.Commit(ctx)
+	return http.StatusOK, nil
 }
