@@ -42,10 +42,6 @@ func Withdraw(res http.ResponseWriter, req *http.Request) {
 	}
 
 	userID := handler.GetUserRequest(req)
-	if userID == 0 {
-		http.Error(res, "user not found", http.StatusUnauthorized)
-		return
-	}
 
 	withdrawService := service.NewWithdraw()
 	status, err := withdrawService.Withdraw(userID, withdrawModel)

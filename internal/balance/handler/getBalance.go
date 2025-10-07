@@ -12,10 +12,6 @@ import (
 // `500` — внутренняя ошибка сервера.
 func GetBalance(res http.ResponseWriter, req *http.Request) {
 	userID := handler.GetUserRequest(req)
-	if userID == 0 {
-		http.Error(res, "user not found", http.StatusUnauthorized)
-		return
-	}
 
 	service := service.NewGetBalance(userID)
 	balance, err := service.GetBalanceUser()

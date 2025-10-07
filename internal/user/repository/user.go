@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"gophermart/internal/config/db"
+	"gophermart/internal/user/model"
 	"log"
 
 	"github.com/jackc/pgx/v5"
@@ -45,5 +46,50 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, login string, password string) 
 		}
 	}
 	return userID, nil
+}
 
+func (u *UserRepository) GetUserForLogin(login string) (model.User, error) {
+	db := db.GetDB()
+
+	query := `SELECT id, login, password FROM users WHERE login = $1 LIMIT 1`
+	rows, err := db.Query(u.ctx, query, string(login))
+	if err != nil {
+		log.Println("Error query:", err)
+		return model.User{}, err
+	}
+	defer rows.Close()
+
+	var user model.User
+	if rows.Next() {
+		err := rows.Scan(&user.ID, &user.Login, &user.Password)
+		if err != nil {
+			log.Println("error scan user", err)
+			return model.User{}, err
+		}
+	}
+
+	return user, nil
+}
+
+func (u *UserRepository) GetUserForId(ID int) (model.User, error) {
+	db := db.GetDB()
+
+	query := `SELECT id, login, password FROM users WHERE id = $1 LIMIT 1`
+	rows, err := db.Query(u.ctx, query, ID)
+	if err != nil {
+		log.Println("Error query:", err)
+		return model.User{}, err
+	}
+	defer rows.Close()
+
+	var user model.User
+	if rows.Next() {
+		err := rows.Scan(&user.ID, &user.Login, &user.Password)
+		if err != nil {
+			log.Println("error scan user", err)
+			return model.User{}, err
+		}
+	}
+
+	return user, nil
 }

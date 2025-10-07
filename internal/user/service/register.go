@@ -12,18 +12,18 @@ import (
 )
 
 func Register(apiUser model.APIUser) (int, error) {
-	db := db.GetDB()
 
-	user, err := GetUserForLogin(apiUser.Login)
-
-	if user.ID != 0 || err != nil {
-		return -1, nil
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	userRepository := repository.NewUserRepository(ctx)
 
+	user, err := userRepository.GetUserForLogin(apiUser.Login)
+
+	if user.ID != 0 || err != nil {
+		return -1, nil
+	}
+	db := db.GetDB()
 	tx, err := db.Begin(ctx)
 	if err != nil {
 		log.Fatal(err)

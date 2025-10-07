@@ -13,10 +13,6 @@ import (
 // `500` — внутренняя ошибка сервера.
 func GetOrders(res http.ResponseWriter, req *http.Request) {
 	userID := handler.GetUserRequest(req)
-	if userID == 0 {
-		http.Error(res, "user not found", http.StatusUnauthorized)
-		return
-	}
 
 	orders, err := service.GetOrders(userID)
 
