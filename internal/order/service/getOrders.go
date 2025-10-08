@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"gophermart/internal/order/model"
 	"gophermart/internal/order/repository"
 	"strconv"
@@ -9,7 +10,10 @@ import (
 
 func GetOrders(userID int) ([]model.APIOrder, error) {
 	apiOrders := []model.APIOrder{}
-	orders, err := repository.NewOrderRepository().GetOrders(userID)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+
+	orders, err := repository.NewOrderRepository().GetOrders(ctx, userID)
 	if err != nil {
 		return []model.APIOrder{}, err
 	}

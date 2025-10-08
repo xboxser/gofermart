@@ -5,7 +5,6 @@ import (
 	"gophermart/internal/balance/model"
 	"gophermart/internal/config/db"
 	"log"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -18,14 +17,12 @@ func NewBalanceRepository() *BalanceRepository {
 	return &BalanceRepository{db: db.GetDB()}
 }
 
-func (b *BalanceRepository) GetBalanceUser(userID int) (model.Balance, error) {
+func (b *BalanceRepository) GetBalanceUser(ctx context.Context, userID int) (model.Balance, error) {
 	var balance model.Balance
 	//Устанавливаем отрицательное значение withdrawn, чтобы в случае ошибки в дальнейшем можно было понять, что balance не найден
 	balance.Withdrawn = -1
 	query := `SELECT current, withdrawn FROM balance 
 	WHERE user_id = $1 LIMIT 1`
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel()
 	rows, err := b.db.Query(ctx, query, userID)
 	if err != nil {
 		log.Println("Error query:", err)

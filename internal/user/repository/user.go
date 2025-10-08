@@ -11,18 +11,16 @@ import (
 )
 
 type UserRepository struct {
-	ctx context.Context
-	db  *db.DBPgx
+	db *db.DBPgx
 }
 
-func NewUserRepository(ctx context.Context) *UserRepository {
+func NewUserRepository() *UserRepository {
 	return &UserRepository{
-		db:  db.GetDB(),
-		ctx: ctx,
+		db: db.GetDB(),
 	}
 }
 
-func (u *UserRepository) RegisterUser(tx pgx.Tx, login string, password string) (int, error) {
+func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login string, password string) (int, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatalf("Error hashing password: %v", err)
@@ -31,7 +29,7 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, login string, password string) 
 
 	userID := -1
 	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
-	rows, err := tx.Query(u.ctx, query, login, string(hashedPassword))
+	rows, err := tx.Query(ctx, query, login, string(hashedPassword))
 	if err != nil {
 		log.Printf("Insert error: %v", err)
 		return -1, err
@@ -48,11 +46,11 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, login string, password string) 
 	return userID, nil
 }
 
-func (u *UserRepository) GetUserForLogin(login string) (model.User, error) {
+func (u *UserRepository) GetUserForLogin(ctx context.Context, login string) (model.User, error) {
 	db := db.GetDB()
 
 	query := `SELECT id, login, password FROM users WHERE login = $1 LIMIT 1`
-	rows, err := db.Query(u.ctx, query, string(login))
+	rows, err := db.Query(ctx, query, string(login))
 	if err != nil {
 		log.Println("Error query:", err)
 		return model.User{}, err
@@ -71,11 +69,11 @@ func (u *UserRepository) GetUserForLogin(login string) (model.User, error) {
 	return user, nil
 }
 
-func (u *UserRepository) GetUserForId(ID int) (model.User, error) {
+func (u *UserRepository) GetUserForID(ctx context.Context, ID int) (model.User, error) {
 	db := db.GetDB()
 
 	query := `SELECT id, login, password FROM users WHERE id = $1 LIMIT 1`
-	rows, err := db.Query(u.ctx, query, ID)
+	rows, err := db.Query(ctx, query, ID)
 	if err != nil {
 		log.Println("Error query:", err)
 		return model.User{}, err

@@ -11,8 +11,8 @@ func GetUserForID(ID int) (model.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	userRepository := repository.NewUserRepository(ctx)
-	user, err := userRepository.GetUserForId(ID)
+	userRepository := repository.NewUserRepository()
+	user, err := userRepository.GetUserForID(ctx, ID)
 
 	if err != nil {
 		return model.User{}, err

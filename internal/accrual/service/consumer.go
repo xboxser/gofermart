@@ -53,9 +53,11 @@ func (c *Consumer) Run() {
 
 // начисляем баллы пользователю
 func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	// проверяем что данный заказ есть в системе и у него указан пользователь
-	order, err := c.repositoryOrder.GetOrderByNumber(OrderAccrual.Order)
+	order, err := c.repositoryOrder.GetOrderByNumber(ctx, OrderAccrual.Order)
 	fmt.Println("order", order)
 	if err != nil || order.ID == 0 {
 		return fmt.Errorf("error get order")
@@ -64,9 +66,6 @@ func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
 	if order.UserID == 0 {
 		return fmt.Errorf("error get user")
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
 
 	db := db.GetDB()
 	tx, err := db.Begin(ctx)
@@ -82,7 +81,7 @@ func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
 	}
 
 	// Получаем заказ, для индетификации пользователя
-	order, err = c.repositoryOrder.GetOrderByNumber(OrderAccrual.Order)
+	order, err = c.repositoryOrder.GetOrderByNumber(ctx, OrderAccrual.Order)
 	if err != nil {
 		return fmt.Errorf("error get order")
 	}

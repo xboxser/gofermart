@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"gophermart/internal/order/repository"
 	"time"
@@ -40,7 +41,10 @@ func generator(doneCh chan struct{}) chan int {
 }
 
 func getOrders() []int {
-	orders, err := repository.NewOrderRepository().GetOrdersForAccrual()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	orders, err := repository.NewOrderRepository().GetOrdersForAccrual(ctx)
 	if err != nil {
 		return []int{}
 	}

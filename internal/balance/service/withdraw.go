@@ -23,7 +23,10 @@ func NewWithdraw() *Withdraw {
 }
 
 func (w *Withdraw) Withdraw(userID int, model model.Withdraw) (int, error) {
-	balance, err := w.repositoryBalance.GetBalanceUser(userID)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	balance, err := w.repositoryBalance.GetBalanceUser(ctx, userID)
 	if err != nil {
 		return 0, fmt.Errorf("error get balance user")
 	}
@@ -31,9 +34,6 @@ func (w *Withdraw) Withdraw(userID int, model model.Withdraw) (int, error) {
 	if balance.Current < model.Sum {
 		return http.StatusPaymentRequired, nil
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
 
 	db := db.GetDB()
 	tx, err := db.Begin(ctx)

@@ -14,8 +14,8 @@ func Login(apiUser model.APIUser) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	userRepository := repository.NewUserRepository(ctx)
-	user, err := userRepository.GetUserForLogin(apiUser.Login)
+	userRepository := repository.NewUserRepository()
+	user, err := userRepository.GetUserForLogin(ctx, apiUser.Login)
 	if user.ID == 0 || err != nil {
 		return -1, err
 	}
