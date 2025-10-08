@@ -2,6 +2,8 @@ package handler
 
 import (
 	"bytes"
+	"errors"
+	"gophermart/internal/order/model"
 	"gophermart/internal/order/service"
 	"gophermart/internal/order/validator"
 	"gophermart/internal/user/handler"
@@ -37,11 +39,19 @@ func AddOrder(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	code, err := service.AddOrder(body, userID)
+	err = service.AddOrder(body, userID)
 	if err != nil {
-		http.Error(res, "error insert order", code)
+		switch {
+		case errors.Is(err, model.Error202):
+			res.WriteHeader(http.StatusAccepted)
+
+		case errors.Is(err, model.Error409):
+			res.WriteHeader(http.StatusConflict)
+		default:
+			http.Error(res, "error insert order", http.StatusInternalServerError)
+		}
 		return
 	}
 
-	res.WriteHeader(code)
+	res.WriteHeader(http.StatusOK)
 }
