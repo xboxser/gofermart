@@ -24,15 +24,15 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login stri
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Fatalf("Error hashing password: %v", err)
-		return -1, err
+		return 0, err
 	}
 
-	userID := -1
+	userID := 0
 	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
 	rows, err := tx.Query(ctx, query, login, string(hashedPassword))
 	if err != nil {
 		log.Printf("Insert error: %v", err)
-		return -1, err
+		return 0, err
 	}
 	defer rows.Close()
 
@@ -40,8 +40,12 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login stri
 		err = rows.Scan(&userID)
 		if err != nil {
 			log.Printf("Scan error: %v", err)
-			return -1, err
+			return 0, err
 		}
+	}
+
+	if userID == 0 {
+		return 0, model.ErrRegisterUser
 	}
 	return userID, nil
 }

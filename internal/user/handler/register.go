@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"gophermart/internal/user/model"
 	"gophermart/internal/user/service"
 	"gophermart/internal/user/validator"
@@ -38,13 +39,12 @@ func Register(res http.ResponseWriter, req *http.Request) {
 
 	userID, err := service.Register(user)
 	if err != nil {
+		if errors.Is(err, model.ErrLoginBusy) {
+			http.Error(res, "This login is busy", http.StatusConflict)
+			return
+		}
 		http.Error(res, err.Error(), http.StatusInternalServerError)
 		log.Println("error register", err)
-		return
-	}
-
-	if userID == -1 {
-		http.Error(res, "This login is busy", http.StatusConflict)
 		return
 	}
 
