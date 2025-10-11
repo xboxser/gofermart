@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"gophermart/internal/accrual/model"
+	"gophermart/internal/logger"
 	"net/http"
 )
 
@@ -24,7 +25,13 @@ func (a *AccrualClient) GetOrder(orderNumber string) (model.OrderAccrual, int, e
 	if err != nil {
 		return order, http.StatusInternalServerError, err
 	}
-	defer res.Body.Close()
+
+	defer func() {
+		if err := res.Body.Close(); err != nil {
+			sugar := logger.GetLogger()
+			sugar.Errorf("error close body: %v", err)
+		}
+	}()
 
 	if res.StatusCode != http.StatusOK {
 		return order, res.StatusCode, nil

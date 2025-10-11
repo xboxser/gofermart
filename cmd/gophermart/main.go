@@ -25,7 +25,12 @@ func main() {
 	if err := db.InitDB(ctx, config.DatabaseURI); err != nil {
 		sugar.Fatalf("Failed to initialize database: %v", err)
 	}
-	defer db.GetDB().Close()
+
+	defer func() {
+		if err := db.GetDB().Close(); err != nil {
+			sugar.Fatalf("Error close db: %v", err)
+		}
+	}()
 
 	validator.Init()
 
