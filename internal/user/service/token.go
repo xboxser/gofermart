@@ -16,7 +16,6 @@ var jwtSecret = []byte(getJWTSecret())
 func getJWTSecret() string {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		//TODO проверить как без него будут работать тесты
 		secret = "super_secret_code_JWT"
 	}
 	return secret

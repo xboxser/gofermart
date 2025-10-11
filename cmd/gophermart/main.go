@@ -10,7 +10,6 @@ import (
 	"gophermart/internal/validator"
 )
 
-// TODO добавить логирование
 // TODO Сжатие данных при отправке
 
 func main() {

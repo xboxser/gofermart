@@ -1,6 +1,5 @@
 package db
 
-// TODO подумать над реализацией интерфейса
 import (
 	"context"
 	"embed"
@@ -20,7 +19,6 @@ var onceDB sync.Once
 
 type DBPgx struct {
 	conn *pgx.Conn
-	// TODO перенести PostgresErrorClassifier из проекта метрик
 }
 
 // gofermart_user qwerty!@3
@@ -48,11 +46,6 @@ func InitDB(ctx context.Context, connStr string) error {
 	})
 	return initErr
 
-}
-
-// TODO скорее всего использоваться не будет и нужно удалить
-func GetConn() *pgx.Conn {
-	return globalDB.conn
 }
 
 func GetDB() *DBPgx {
@@ -87,7 +80,7 @@ func runMigrations(dsn string) error {
 	// }
 	if err := m.Up(); err != nil {
 
-		// TODO для переключения версии миграции
+		// для переключения версии миграции
 		// if _, dirty := err.(migrate.ErrDirty); dirty {
 		// 	// Принудительно устанавливаем версию
 		// 	m.Force(3) // или нужный номер версии

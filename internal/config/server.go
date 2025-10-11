@@ -7,15 +7,15 @@ import (
 	"github.com/caarlos0/env"
 )
 
-type configServer struct {
+type ConfigServer struct {
 	RunAddress           string `env:"RUN_ADDRESS"`
 	DatabaseURI          string `env:"DATABASE_URI"`
 	AccrualSystemAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 	AccrualCountChan     int    `env:"ACCRUAL_COUNT_CHAN"`
 }
 
-func NewConfigServer() *configServer {
-	var cfg configServer
+func NewConfigServer() *ConfigServer {
+	var cfg ConfigServer
 	_ = env.Parse(&cfg)
 
 	serverFlags := flag.NewFlagSet("server", flag.ExitOnError)
