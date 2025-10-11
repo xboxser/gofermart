@@ -7,8 +7,18 @@ import (
 	"time"
 )
 
+type Generator struct {
+	doneCh chan struct{}
+}
+
+func NewGenerator(doneCh chan struct{}) *Generator {
+	return &Generator{
+		doneCh: doneCh,
+	}
+}
+
 // generator возвращает канал с данными
-func generator(doneCh chan struct{}) chan int {
+func (g *Generator) Run() chan int {
 	// канал, в который будем отправлять данные из слайса
 	inputCh := make(chan int)
 	sugar := logger.GetLogger()
@@ -19,16 +29,16 @@ func generator(doneCh chan struct{}) chan int {
 		defer close(inputCh)
 
 		sugar.Info("Запускаем генератор")
-		ticker := time.NewTicker(2 * time.Second)
+		ticker := time.NewTicker(5 * time.Second)
 		defer ticker.Stop()
 
 		for {
 			select {
 			// если doneCh закрыт, сразу выходим из горутины
-			case <-doneCh:
+			case <-g.doneCh:
 				return
 			case <-ticker.C:
-				sugar.Info("Прошло 2 секунды! Проверяем заказы")
+				sugar.Info("Прошло 5 секунды! Проверяем заказы")
 				orders := getOrders()
 				for _, order := range orders {
 					inputCh <- order

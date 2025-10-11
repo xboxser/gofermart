@@ -40,17 +40,16 @@ func (f *fanOut) Run() []chan model.OrderAccrual {
 func (f *fanOut) processing() chan model.OrderAccrual {
 	// канал с результатом
 	addRes := make(chan model.OrderAccrual)
-
+	sugar := logger.GetLogger()
 	go func() {
 		// закрываем канал, когда горутина завершается
 		defer close(addRes)
 
 		// берём из канала inputCh номер заказа
 		for orderNumber := range f.inputCh {
-			fmt.Println("orderNUmber: ", orderNumber)
 			order, err := f.sendAccrual(orderNumber)
 
-			fmt.Println("result:", orderNumber, order, err)
+			sugar.Debugln("result sendAccrual:", orderNumber, order, err)
 			select {
 			// если канал doneCh закрылся, выходим из горутины
 			case <-f.doneCh:
@@ -58,7 +57,7 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 			// если doneCh не закрыт, отправляем результат вычисления в канал результата
 			default:
 				order.Order = strconv.Itoa(orderNumber)
-				fmt.Println("default err", order, err)
+
 				if err != nil {
 					continue
 				}

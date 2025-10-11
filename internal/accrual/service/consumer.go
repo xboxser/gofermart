@@ -6,6 +6,7 @@ import (
 	"gophermart/internal/accrual/model"
 	repositoryBalance "gophermart/internal/balance/repository"
 	"gophermart/internal/config/db"
+	"gophermart/internal/logger"
 	"gophermart/internal/order/repository"
 	"log"
 	"time"
@@ -28,8 +29,8 @@ func NewConsumer(resultCh chan model.OrderAccrual, doneCh chan struct{}) *Consum
 }
 
 func (c *Consumer) Run() {
+	sugar := logger.GetLogger()
 	go func() {
-
 		for order := range c.resultCh {
 			select {
 			case <-c.doneCh:
@@ -40,7 +41,7 @@ func (c *Consumer) Run() {
 			switch order.Status {
 			case model.OrderStatusProcessed:
 				err := c.accrualPoints(order)
-				log.Println("set status processed", err)
+				sugar.Infof("set status processed: %v", err)
 			case model.OrderStatusInvalid:
 				c.repositoryOrder.SetStatusInvalid(order.Order)
 			case model.OrderStatusRegistered:

@@ -22,10 +22,11 @@ func (a *AccrualService) Run() {
 		// defer close(doneCh)
 
 		// канал с данными
-		inputCh := generator(doneCh)
+		generator := NewGenerator(doneCh)
+		generatorCh := generator.Run()
 
 		// запускаем fanOut и получаем результаты обработки данных
-		fanOut := NewFanOut(a.AccrualCountChan, a.AccrualSystemAddress, doneCh, inputCh)
+		fanOut := NewFanOut(a.AccrualCountChan, a.AccrualSystemAddress, doneCh, generatorCh)
 		channels := fanOut.Run()
 
 		fanIn := NewFanIn(doneCh)
