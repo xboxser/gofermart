@@ -46,7 +46,6 @@ func InitDB(ctx context.Context, connStr string) error {
 		}
 		initErr = runMigrations(connStr)
 	})
-	fmt.Printf("initDB: %v", initErr)
 	return initErr
 
 }

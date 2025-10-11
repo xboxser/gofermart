@@ -1,22 +1,24 @@
 package model
 
+type StatusOrderType string
+
 const (
 	// заказ загружен в систему, но не попал в обработку;
-	OrderStatusNew = "NEW"
+	OrderStatusNew StatusOrderType = "NEW"
 	// вознаграждение за заказ рассчитывается;
-	OrderStatusProcessing = "PROCESSING"
+	OrderStatusProcessing StatusOrderType = "PROCESSING"
 	// система расчёта вознаграждений отказала в расчёте;
-	OrderStatusInvalid = "INVALID"
+	OrderStatusInvalid StatusOrderType = "INVALID"
 	// данные по заказу проверены и информация о расчёте успешно получена.
-	OrderStatusProcessed = "PROCESSED"
+	OrderStatusProcessed StatusOrderType = "PROCESSED"
 )
 
 type OrderStatus struct {
-	List map[string]int
+	List map[StatusOrderType]int
 }
 
 func NewOrderStatus() OrderStatus {
 	return OrderStatus{
-		List: map[string]int{},
+		List: map[StatusOrderType]int{},
 	}
 }

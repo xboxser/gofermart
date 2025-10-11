@@ -117,7 +117,7 @@ func (o *OrderRepository) SetStatusInvalid(number string) error {
 	return o.setStatus(number, model.OrderStatusInvalid)
 }
 
-func (o *OrderRepository) setStatus(number string, status string) error {
+func (o *OrderRepository) setStatus(number string, status model.StatusOrderType) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
