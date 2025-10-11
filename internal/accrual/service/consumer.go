@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"gophermart/internal/accrual/model"
 	repositoryBalance "gophermart/internal/balance/repository"
 	"gophermart/internal/config/db"
@@ -58,13 +58,12 @@ func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
 
 	// проверяем что данный заказ есть в системе и у него указан пользователь
 	order, err := c.repositoryOrder.GetOrderByNumber(ctx, OrderAccrual.Order)
-	fmt.Println("order", order)
 	if err != nil || order.ID == 0 {
-		return fmt.Errorf("error get order")
+		return errors.New("error get order")
 	}
 
 	if order.UserID == 0 {
-		return fmt.Errorf("error get user")
+		return errors.New("error get user")
 	}
 
 	db := db.GetDB()
@@ -77,19 +76,19 @@ func (c *Consumer) accrualPoints(OrderAccrual model.OrderAccrual) error {
 	// Устанавливаем статус, что по заказу все расчеты прошли
 	err = c.repositoryOrder.SetStatusProcessed(tx, ctx, OrderAccrual.Order, OrderAccrual.Accrual)
 	if err != nil {
-		return fmt.Errorf("error set status processed")
+		return errors.New("error set status processed")
 	}
 
 	// Получаем заказ, для индетификации пользователя
 	order, err = c.repositoryOrder.GetOrderByNumber(ctx, OrderAccrual.Order)
 	if err != nil {
-		return fmt.Errorf("error get order")
+		return errors.New("error get order")
 	}
 
 	// Начисляем баллы на счет пользователя
 	err = c.repositoryBalance.AddBalanceUser(tx, ctx, order.UserID, OrderAccrual.Accrual)
 	if err != nil {
-		return fmt.Errorf("error add balance")
+		return errors.New("error add balance")
 	}
 
 	tx.Commit(ctx)

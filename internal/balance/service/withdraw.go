@@ -6,6 +6,7 @@ import (
 	"gophermart/internal/balance/model"
 	"gophermart/internal/balance/repository"
 	"gophermart/internal/config/db"
+	"gophermart/internal/logger"
 	"log"
 	"net/http"
 	"time"
@@ -23,6 +24,7 @@ func NewWithdraw() *Withdraw {
 }
 
 func (w *Withdraw) Withdraw(userID int, model model.Withdraw) (int, error) {
+	sugar := logger.GetLogger()
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
@@ -49,7 +51,7 @@ func (w *Withdraw) Withdraw(userID int, model model.Withdraw) (int, error) {
 
 	err = w.repositoryWithdraw.AddWithdraw(tx, ctx, userID, model.Sum, model.OrderID)
 	if err != nil {
-		log.Println(err)
+		sugar.Errorf("Error insert withdraw: %v", err)
 		return http.StatusInternalServerError, fmt.Errorf("error AddWithdraw")
 	}
 

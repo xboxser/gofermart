@@ -4,7 +4,7 @@ import (
 	"context"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/config/db"
-	"log"
+	"gophermart/internal/logger"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -18,6 +18,7 @@ func NewBalanceRepository() *BalanceRepository {
 }
 
 func (b *BalanceRepository) GetBalanceUser(ctx context.Context, userID int) (model.Balance, error) {
+	sugar := logger.GetLogger()
 	var balance model.Balance
 	//Устанавливаем отрицательное значение withdrawn, чтобы в случае ошибки в дальнейшем можно было понять, что balance не найден
 	balance.Withdrawn = -1
@@ -25,7 +26,7 @@ func (b *BalanceRepository) GetBalanceUser(ctx context.Context, userID int) (mod
 	WHERE user_id = $1 LIMIT 1`
 	rows, err := b.db.Query(ctx, query, userID)
 	if err != nil {
-		log.Println("Error query:", err)
+		sugar.Errorf("Error query: %v", err)
 		return balance, err
 	}
 	defer rows.Close()
@@ -33,7 +34,7 @@ func (b *BalanceRepository) GetBalanceUser(ctx context.Context, userID int) (mod
 	if rows.Next() {
 		err := rows.Scan(&balance.Current, &balance.Withdrawn)
 		if err != nil {
-			log.Println("error scan balance user", err)
+			sugar.Errorf("error scan balance user: %v", err)
 			return balance, err
 		}
 	}

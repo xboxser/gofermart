@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	balanceRepository "gophermart/internal/balance/repository"
 	"gophermart/internal/config/db"
 	"gophermart/internal/user/model"
 	"gophermart/internal/user/repository"
-	"log"
 	"time"
 )
 
@@ -30,7 +30,7 @@ func Register(apiUser model.APIUser) (int, error) {
 	db := db.GetDB()
 	tx, err := db.Begin(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return 0, errors.New("error begin transaction")
 	}
 	defer tx.Rollback(ctx) // Если не отработает commit, то откатываем в любом случае
 

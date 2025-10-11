@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"gophermart/internal/config/db"
+	"gophermart/internal/logger"
 	"gophermart/internal/order/model"
-	"log"
 )
 
 type StatusRepository struct {
@@ -18,13 +18,14 @@ func NewStatusRepository() *StatusRepository {
 }
 
 func (s *StatusRepository) GetStatusList(ctx context.Context) (model.OrderStatus, error) {
+	sugar := logger.GetLogger()
 	status := model.NewOrderStatus()
 	status.List = make(map[string]int)
 	query := `SELECT id, name FROM statuses`
 
 	rows, err := s.db.Query(ctx, query)
 	if err != nil {
-		log.Println("Error query:", err)
+		sugar.Errorf("Error query: %v", err)
 		return status, err
 	}
 
@@ -33,7 +34,7 @@ func (s *StatusRepository) GetStatusList(ctx context.Context) (model.OrderStatus
 		var name string
 		err := rows.Scan(&id, &name)
 		if err != nil {
-			log.Fatal("Row scan failed:", err)
+			sugar.Errorf("Row scan failed: %v", err)
 		}
 		status.List[name] = id
 	}

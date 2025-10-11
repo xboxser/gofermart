@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gophermart/internal/accrual/client"
 	"gophermart/internal/accrual/model"
+	"gophermart/internal/logger"
 	"net/http"
 	"strconv"
 	"time"
@@ -75,6 +76,7 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 // `429` — превышено количество запросов к сервису.
 
 func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
+	sugar := logger.GetLogger()
 	number := strconv.Itoa(orderNumber)
 	// Тайминги отправки запроса на сервер
 	retryIntervals := []time.Duration{0, 1 * time.Second, 3 * time.Second, 5 * time.Second}
@@ -82,7 +84,7 @@ func (f *fanOut) sendAccrual(orderNumber int) (model.OrderAccrual, error) {
 	order, status, err := f.client.GetOrder(number)
 	for _, retryInterval := range retryIntervals {
 		if retryInterval > 0 {
-			fmt.Println("retrying time", retryInterval)
+			sugar.Debugln("retrying time", retryInterval, orderNumber)
 			time.Sleep(retryInterval)
 			order, status, err = f.client.GetOrder(number)
 		}

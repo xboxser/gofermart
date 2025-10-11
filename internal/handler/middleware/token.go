@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gophermart/internal/user/handler"
 	"gophermart/internal/user/service"
-	"log"
 	"net/http"
 )
 
@@ -13,7 +12,6 @@ import (
 func CheckToken(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		headerValue := r.Header.Get("Authorization")
-		log.Printf("Заголовок %s: %s", "Authorization", headerValue)
 
 		if headerValue == "" {
 			http.Error(w, "Authorization header is required", http.StatusUnauthorized)

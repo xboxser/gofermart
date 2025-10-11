@@ -2,26 +2,29 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"gophermart/internal/accrual/service"
 	"gophermart/internal/config"
 	"gophermart/internal/config/db"
 	"gophermart/internal/handler"
+	"gophermart/internal/logger"
 	"gophermart/internal/validator"
-	"log"
 )
 
 // TODO добавить логирование
-// TODO прикрутить свагер
 // TODO Сжатие данных при отправке
 
 func main() {
 	config := config.NewConfigServer()
-	fmt.Println(config.RunAddress, config.DatabaseURI, config.AccrualSystemAddress)
+
+	logger.Init()
+	defer logger.Sync()
+	sugar := logger.GetLogger()
+
+	sugar.Infof("Starting server at %s", config.RunAddress)
 
 	ctx := context.Background()
 	if err := db.InitDB(ctx, config.DatabaseURI); err != nil {
-		log.Fatal("Failed to initialize database:", err)
+		sugar.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer db.GetDB().Close()
 
@@ -32,5 +35,4 @@ func main() {
 	accrualService := service.NewAccrualService(config.AccrualSystemAddress, config.AccrualCountChan)
 	accrualService.Run()
 	handler.Run()
-
 }

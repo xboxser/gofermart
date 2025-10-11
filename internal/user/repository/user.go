@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"gophermart/internal/config/db"
+	"gophermart/internal/logger"
 	"gophermart/internal/user/model"
-	"log"
 
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -21,9 +21,10 @@ func NewUserRepository() *UserRepository {
 }
 
 func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login string, password string) (int, error) {
+	sugar := logger.GetLogger()
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		log.Fatalf("Error hashing password: %v", err)
+		sugar.Errorf("Error hashing password: %v", err)
 		return 0, err
 	}
 
@@ -31,7 +32,7 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login stri
 	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
 	rows, err := tx.Query(ctx, query, login, string(hashedPassword))
 	if err != nil {
-		log.Printf("Insert error: %v", err)
+		sugar.Errorf("Insert error: %v", err)
 		return 0, err
 	}
 	defer rows.Close()
@@ -39,7 +40,7 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login stri
 	if rows.Next() {
 		err = rows.Scan(&userID)
 		if err != nil {
-			log.Printf("Scan error: %v", err)
+			sugar.Errorf("Scan error: %v", err)
 			return 0, err
 		}
 	}
@@ -52,11 +53,11 @@ func (u *UserRepository) RegisterUser(tx pgx.Tx, ctx context.Context, login stri
 
 func (u *UserRepository) GetUserForLogin(ctx context.Context, login string) (model.User, error) {
 	db := db.GetDB()
-
+	sugar := logger.GetLogger()
 	query := `SELECT id, login, password FROM users WHERE login = $1 LIMIT 1`
 	rows, err := db.Query(ctx, query, string(login))
 	if err != nil {
-		log.Println("Error query:", err)
+		sugar.Errorf("Error query: %v", err)
 		return model.User{}, err
 	}
 	defer rows.Close()
@@ -65,7 +66,7 @@ func (u *UserRepository) GetUserForLogin(ctx context.Context, login string) (mod
 	if rows.Next() {
 		err := rows.Scan(&user.ID, &user.Login, &user.Password)
 		if err != nil {
-			log.Println("error scan user", err)
+			sugar.Error("error scan user %v", err)
 			return model.User{}, err
 		}
 	}
@@ -75,11 +76,11 @@ func (u *UserRepository) GetUserForLogin(ctx context.Context, login string) (mod
 
 func (u *UserRepository) GetUserForID(ctx context.Context, ID int) (model.User, error) {
 	db := db.GetDB()
-
+	sugar := logger.GetLogger()
 	query := `SELECT id, login, password FROM users WHERE id = $1 LIMIT 1`
 	rows, err := db.Query(ctx, query, ID)
 	if err != nil {
-		log.Println("Error query:", err)
+		sugar.Errorf("Error query: %v", err)
 		return model.User{}, err
 	}
 	defer rows.Close()
@@ -88,7 +89,7 @@ func (u *UserRepository) GetUserForID(ctx context.Context, ID int) (model.User, 
 	if rows.Next() {
 		err := rows.Scan(&user.ID, &user.Login, &user.Password)
 		if err != nil {
-			log.Println("error scan user", err)
+			sugar.Errorf("error scan user: %v", err)
 			return model.User{}, err
 		}
 	}

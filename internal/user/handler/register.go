@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"gophermart/internal/logger"
 	"gophermart/internal/user/model"
 	"gophermart/internal/user/service"
 	"gophermart/internal/user/validator"
-	"log"
 	"net/http"
 )
 
@@ -16,11 +16,13 @@ import (
 // 409 — логин уже занят;
 // 500 — внутренняя ошибка сервера.
 func Register(res http.ResponseWriter, req *http.Request) {
+	sugar := logger.GetLogger()
+
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
-		log.Println("error read  body", err)
+		sugar.Error("error read  body: %v", err)
 		return
 	}
 
@@ -28,30 +30,31 @@ func Register(res http.ResponseWriter, req *http.Request) {
 
 	if err = json.Unmarshal(buf.Bytes(), &user); err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
-		log.Println("error read json", err)
+		sugar.Errorf("error read json: %v", err)
 		return
 	}
 
 	if err := validator.ValidateModelUserAPI(user); err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
-		log.Println("Validation failed:", err)
+		sugar.Errorf("Validation failed: %v", err)
 	}
 
 	userID, err := service.Register(user)
 	if err != nil {
 		if errors.Is(err, model.ErrLoginBusy) {
 			http.Error(res, "This login is busy", http.StatusConflict)
+			sugar.Errorf("This login is busy: %v", err)
 			return
 		}
 		http.Error(res, err.Error(), http.StatusInternalServerError)
-		log.Println("error register", err)
+		sugar.Errorf("error register: %v", err)
 		return
 	}
 
 	token, err := service.BuildJWTString(userID)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
-		log.Println("error token", err)
+		sugar.Errorf("error token: %v", err)
 		return
 	}
 	res.Header().Set("Authorization", token)

@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-	"fmt"
 	"gophermart/internal/accrual/model"
 	"net/http"
 )
@@ -26,8 +25,6 @@ func (a *AccrualClient) GetOrder(orderNumber string) (model.OrderAccrual, int, e
 		return order, http.StatusInternalServerError, err
 	}
 	defer res.Body.Close()
-
-	fmt.Println("AccrualClient: GetOrder", res.StatusCode, orderNumber)
 
 	if res.StatusCode != http.StatusOK {
 		return order, res.StatusCode, nil

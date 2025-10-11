@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"gophermart/internal/balance/model"
 	"gophermart/internal/balance/service"
+	"gophermart/internal/logger"
 	"gophermart/internal/order/validator"
 	"gophermart/internal/user/handler"
 
-	"log"
 	"net/http"
 )
 
@@ -18,11 +18,13 @@ import (
 // 422 — неверный номер заказа;
 // 500 — внутренняя ошибка сервера.
 func Withdraw(res http.ResponseWriter, req *http.Request) {
+	sugar := logger.GetLogger()
+
 	var buf bytes.Buffer
 	_, err := buf.ReadFrom(req.Body)
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
-		log.Println("error read  body", err)
+		sugar.Errorf("error read  body: %v", err)
 		return
 	}
 
@@ -30,7 +32,7 @@ func Withdraw(res http.ResponseWriter, req *http.Request) {
 
 	if err = json.Unmarshal(buf.Bytes(), &withdrawModel); err != nil {
 		http.Error(res, err.Error(), http.StatusBadRequest)
-		log.Println("error read json", err)
+		sugar.Errorf("error read json: %v", err)
 		return
 	}
 
@@ -48,6 +50,7 @@ func Withdraw(res http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		http.Error(res, err.Error(), http.StatusInternalServerError)
+		sugar.Errorf("error withdraw: %v", err)
 		return
 	}
 

@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"gophermart/internal/logger"
 	"gophermart/internal/order/repository"
 	"time"
 )
@@ -11,13 +11,14 @@ import (
 func generator(doneCh chan struct{}) chan int {
 	// канал, в который будем отправлять данные из слайса
 	inputCh := make(chan int)
+	sugar := logger.GetLogger()
 
 	// горутина, в которой отправляем в канал  inputCh данные
 	go func() {
 		// как отправители закрываем канал, когда всё отправим
 		defer close(inputCh)
 
-		fmt.Println("Запускаем генератор")
+		sugar.Info("Запускаем генератор")
 		ticker := time.NewTicker(2 * time.Second)
 		defer ticker.Stop()
 
@@ -27,7 +28,7 @@ func generator(doneCh chan struct{}) chan int {
 			case <-doneCh:
 				return
 			case <-ticker.C:
-				fmt.Println("Прошло 2 секунды! Проверяем заказы")
+				sugar.Info("Прошло 2 секунды! Проверяем заказы")
 				orders := getOrders()
 				for _, order := range orders {
 					inputCh <- order

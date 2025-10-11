@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"gophermart/internal/config/db"
+	"gophermart/internal/logger"
 	"gophermart/internal/order/model"
 	"log"
 	"time"
@@ -139,7 +140,8 @@ func (o *OrderRepository) SetStatusProcessed(tx pgx.Tx, ctx context.Context, num
   			AND statuses.name = $3;`
 	_, err := tx.Exec(ctx, query, accrual, number, model.OrderStatusProcessed)
 	if err != nil {
-		log.Println("Error SetStatusProcessed query:", err)
+		sugar := logger.GetLogger()
+		sugar.Errorf("Error SetStatusProcessed query: %v", err)
 		return err
 	}
 	return nil
