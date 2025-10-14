@@ -9,6 +9,7 @@ import (
 	"gophermart/internal/logger"
 	"gophermart/internal/order/repository"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -18,13 +19,15 @@ type Consumer struct {
 	doneCh            chan struct{}
 	repositoryOrder   *repository.OrderRepository
 	repositoryBalance *repositoryBalance.BalanceRepository
+	refundCh          chan int
 }
 
-func NewConsumer(resultCh chan model.OrderAccrual, doneCh chan struct{}) *Consumer {
+func NewConsumer(resultCh chan model.OrderAccrual, doneCh chan struct{}, refundCh chan int) *Consumer {
 	return &Consumer{
 		repositoryOrder:   repository.NewOrderRepository(),
 		repositoryBalance: repositoryBalance.NewBalanceRepository(),
 		resultCh:          resultCh,
+		refundCh:          refundCh,
 	}
 }
 
@@ -37,16 +40,18 @@ func (c *Consumer) Run() {
 				return
 			default:
 			}
-
+			numOrder, _ := strconv.Atoi(order.Order)
 			switch order.Status {
 			case model.OrderStatusProcessed:
 				err := c.accrualPoints(order)
 				sugar.Infof("set status processed: %v", err)
 			case model.OrderStatusInvalid:
 				c.repositoryOrder.SetStatusInvalid(order.Order)
+				c.refundCh <- numOrder
 			case model.OrderStatusRegistered:
 			case model.OrderStatusProcessing:
 				c.repositoryOrder.SetStatusProcessing(order.Order)
+
 			}
 		}
 	}()

@@ -21,18 +21,19 @@ func (a *AccrualService) Run() {
 		// закрываем его при завершении программы
 		// defer close(doneCh)
 
+		refundCh := make(chan int)
 		// канал с данными
-		generator := NewGenerator(doneCh)
+		generator := NewGenerator(doneCh, refundCh)
 		generatorCh := generator.Run()
 
 		// запускаем fanOut и получаем результаты обработки данных
-		fanOut := NewFanOut(a.AccrualCountChan, a.AccrualSystemAddress, doneCh, generatorCh)
+		fanOut := NewFanOut(a.AccrualCountChan, a.AccrualSystemAddress, doneCh, generatorCh, refundCh)
 		channels := fanOut.Run()
 
 		fanIn := NewFanIn(doneCh)
 		resultCh := fanIn.Run(channels...)
 
-		consumer := NewConsumer(resultCh, doneCh)
+		consumer := NewConsumer(resultCh, doneCh, refundCh)
 		consumer.Run()
 
 	}()

@@ -81,15 +81,15 @@ func (o *OrderRepository) GetOrders(ctx context.Context, userID int) ([]model.Or
 }
 
 // получаем список номеров заказа, для проверка сервисом Accrual
-func (o *OrderRepository) GetOrdersForAccrual(ctx context.Context) ([]int, error) {
+func (o *OrderRepository) GetOrdersForAccrual(ctx context.Context, lastOrder int) ([]int, error) {
 	var orders []int
 
 	query := `SELECT number FROM orders 
 	JOIN statuses ON orders.status_id = statuses.id 
-	WHERE statuses.name IN ($1, $2)
+	WHERE statuses.name IN ($1, $2) AND number > $3
 	`
 
-	rows, err := o.db.Query(ctx, query, model.OrderStatusProcessing, model.OrderStatusNew)
+	rows, err := o.db.Query(ctx, query, model.OrderStatusProcessing, model.OrderStatusNew, lastOrder)
 	if err != nil {
 		log.Println("Error query:", err)
 		return orders, err

@@ -15,14 +15,16 @@ type fanOut struct {
 	client       client.AccrualClient
 	doneCh       chan struct{}
 	inputCh      chan int
+	refundCh     chan int
 }
 
-func NewFanOut(countWorkers int, accrualSystemAddress string, doneCh chan struct{}, inputCh chan int) *fanOut {
+func NewFanOut(countWorkers int, accrualSystemAddress string, doneCh chan struct{}, inputCh chan int, refundCh chan int) *fanOut {
 	return &fanOut{
 		countWorkers: countWorkers,
 		client:       *client.NewAccrualClient(accrualSystemAddress),
 		doneCh:       doneCh,
 		inputCh:      inputCh,
+		refundCh:     refundCh,
 	}
 }
 
@@ -57,8 +59,9 @@ func (f *fanOut) processing() chan model.OrderAccrual {
 			// если doneCh не закрыт, отправляем результат вычисления в канал результата
 			default:
 				order.Order = strconv.Itoa(orderNumber)
-
 				if err != nil {
+					// возвращаем заказ обратно в очередь
+					f.refundCh <- orderNumber
 					continue
 				}
 				addRes <- order

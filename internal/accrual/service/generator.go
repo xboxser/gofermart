@@ -8,12 +8,15 @@ import (
 )
 
 type Generator struct {
-	doneCh chan struct{}
+	doneCh    chan struct{}
+	refundCh  chan int
+	lastOrder int
 }
 
-func NewGenerator(doneCh chan struct{}) *Generator {
+func NewGenerator(doneCh chan struct{}, refundCh chan int) *Generator {
 	return &Generator{
-		doneCh: doneCh,
+		doneCh:   doneCh,
+		refundCh: refundCh,
 	}
 }
 
@@ -37,9 +40,14 @@ func (g *Generator) Run() chan int {
 			// если doneCh закрыт, сразу выходим из горутины
 			case <-g.doneCh:
 				return
+			case order := <-g.refundCh:
+				sugar.Info("Получен возврат:", order)
+				time.Sleep(1 * time.Second)
+				inputCh <- order
 			case <-ticker.C:
 				sugar.Info("Прошло 5 секунды! Проверяем заказы")
-				orders := getOrders()
+				orders := g.getOrders()
+				sugar.Infof("Получен список заказов: %v", orders)
 				for _, order := range orders {
 					inputCh <- order
 				}
@@ -51,13 +59,16 @@ func (g *Generator) Run() chan int {
 	return inputCh
 }
 
-func getOrders() []int {
+func (g *Generator) getOrders() []int {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	orders, err := repository.NewOrderRepository().GetOrdersForAccrual(ctx)
+	orders, err := repository.NewOrderRepository().GetOrdersForAccrual(ctx, g.lastOrder)
 	if err != nil {
 		return []int{}
+	}
+	if len(orders) > 0 {
+		g.lastOrder = orders[len(orders)-1]
 	}
 	return orders
 }
