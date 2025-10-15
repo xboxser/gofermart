@@ -1,0 +1,10 @@
+package model
+
+// модель для использования в АПИ
+type APIOrder struct {
+	Number  string  `json:"number"`
+	Status  string  `json:"status"`
+	Accrual float64 `json:"accrual,omitempty"`
+	// формат RFC3339
+	UploadedAt string `json:"uploaded_at"`
+}
